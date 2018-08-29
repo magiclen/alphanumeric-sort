@@ -239,14 +239,8 @@ pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
 }
 
 fn sort_path_slice_inner<P: AsRef<Path>>(slice: &mut [P]) {
-    let mut paths = Vec::new();
-
-    for (i, p) in slice.iter().enumerate() {
-        paths.push((i, i, p.as_ref().as_os_str()));
-    }
-
-    paths.sort_by(|a, b| {
-        compare_os_str(a.2, b.2)
+    slice.sort_by(|a, b| {
+        compare_os_str(a.as_ref().as_os_str(), b.as_ref().as_os_str())
     });
 }
 
