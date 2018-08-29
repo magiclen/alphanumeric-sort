@@ -101,8 +101,8 @@ pub fn compare_str(a: &str, b: &str) -> Ordering {
         p2 += 1;
 
         if ca >= '0' && ca <= '9' && cb >= '0' && cb <= '9' {
-            let mut da = ca as u32 - b'0' as u32;
-            let mut db = cb as u32 - b'0' as u32;
+            let mut da = ca as u32 as f64 - b'0' as f64;
+            let mut db = cb as u32 as f64 - b'0' as f64;
 
             loop {
                 let ca = match c1.next() {
@@ -111,7 +111,7 @@ pub fn compare_str(a: &str, b: &str) -> Ordering {
                 };
 
                 if ca >= '0' && ca <= '9' {
-                    da = da * 10 + (ca as u32 - b'0' as u32);
+                    da = da * 10.0 + (ca as u32 as f64 - b'0' as f64);
                     p1 += 1;
                 } else {
                     v1 = Some(ca);
@@ -126,7 +126,7 @@ pub fn compare_str(a: &str, b: &str) -> Ordering {
                 };
 
                 if cb >= '0' && cb <= '9' {
-                    db = db * 10 + (cb as u32 - b'0' as u32);
+                    db = db * 10.0 + (cb as u32 as f64 - b'0' as f64);
                     p2 += 1;
                 } else {
                     v2 = Some(cb);
