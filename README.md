@@ -2,6 +2,7 @@ Alphanumeric Sort
 ====================
 
 [![Build Status](https://travis-ci.org/magiclen/alphanumeric-sort.svg?branch=master)](https://travis-ci.org/magiclen/alphanumeric-sort)
+[![Build status](https://ci.appveyor.com/api/projects/status/rpl57gugi6eojwms/branch/master?svg=true)](https://ci.appveyor.com/project/magiclen/alphanumeric-sort/branch/master)
 
 ## Motive and Examples
 
