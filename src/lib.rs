@@ -240,7 +240,7 @@ pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
 
 fn sort_path_slice_inner<P: AsRef<Path>>(slice: &mut [P]) {
     slice.sort_by(|a, b| {
-        compare_os_str(a.as_ref().as_os_str(), b.as_ref().as_os_str())
+        compare_os_str_inner(a.as_ref().as_os_str(), b.as_ref().as_os_str())
     });
 }
 
