@@ -2,8 +2,14 @@ extern crate alphanumeric_sort;
 
 use std::path::{Path, PathBuf};
 
+#[cfg(windows)]
+const FILES_PATH: &str = r"examples\files";
+
+#[cfg(not(windows))]
+const FILES_PATH: &str = "examples/files";
+
 fn main() {
-    let files = Path::new("examples/files");
+    let files = Path::new(FILES_PATH);
 
     let dir_files_iter = files.read_dir().unwrap();
 
