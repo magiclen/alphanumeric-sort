@@ -1,41 +1,44 @@
-//! # Alphanumeric Sort
-//! This crate can help you sort order for files and folders whose names contain numerals.
-//!
-//! ## Motive and Examples
-//!
-//! With the Rust native `sort` method, strings and paths are arranged into lexicographical order. It's natural, but in some cases, it is not so intuitive. For example, there are screen snap shots named by **shot-%N** like **shot-2**, **shot-1**, **shot-11**. After a lexicographical sorting, they will be ordered into **shot-1**, **shot-11**, **shot-2**. However, we would prefer **shot-1**, **shot-2**, **shot-11** mostly.
-//!
-//! ```
-//! let mut names = ["shot-2", "shot-1", "shot-11"];
-//!
-//! names.sort();
-//!
-//! assert_eq!(["shot-1", "shot-11", "shot-2"], names);
-//! ```
-//!
-//! Thus, in this kind of case, an alphanumeric sort might come in handy.
-//!
-//! ```
-//! extern crate alphanumeric_sort;
-//!
-//! let mut names = ["shot-2", "shot-1", "shot-11"];
-//!
-//! alphanumeric_sort::sort_str_slice(&mut names);
-//!
-//! assert_eq!(["shot-1", "shot-2", "shot-11"], names);
-//! ```
-//!
-//! ```
-//! extern crate alphanumeric_sort;
-//!
-//! use std::path::Path;
-//!
-//! let mut paths = [Path::new("shot-2"), Path::new("shot-1"), Path::new("shot-11")];
-//!
-//! alphanumeric_sort::sort_path_slice(&mut paths);
-//!
-//! assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], paths);
-//! ```
+/*!
+# Alphanumeric Sort
+
+This crate can help you sort order for files and folders whose names contain numerals.
+
+## Motives and Examples
+
+With the Rust native `sort` method, strings and paths are arranged into lexicographical order. It's natural, but in some cases, it is not so intuitive. For example, there are screen snap shots named by **shot-%N** like **shot-2**, **shot-1**, **shot-11**. After a lexicographical sorting, they will be ordered into **shot-1**, **shot-11**, **shot-2**. However, we would prefer **shot-1**, **shot-2**, **shot-11** mostly.
+
+```rust
+let mut names = ["shot-2", "shot-1", "shot-11"];
+
+names.sort();
+
+assert_eq!(["shot-1", "shot-11", "shot-2"], names);
+```
+
+Thus, in this kind of case, an alphanumeric sort might come in handy.
+
+```rust
+extern crate alphanumeric_sort;
+
+let mut names = ["shot-2", "shot-1", "shot-11"];
+
+alphanumeric_sort::sort_str_slice(&mut names);
+
+assert_eq!(["shot-1", "shot-2", "shot-11"], names);
+```
+
+```rust
+extern crate alphanumeric_sort;
+
+use std::path::Path;
+
+let mut paths = [Path::new("shot-2"), Path::new("shot-1"), Path::new("shot-11")];
+
+alphanumeric_sort::sort_path_slice(&mut paths);
+
+assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], paths);
+```
+*/
 
 use std::cmp::Ordering;
 use std::path::Path;
@@ -68,9 +71,9 @@ macro_rules! ordering {
 }
 
 /// Compare two strings.
-pub fn compare_str(a: &str, b: &str) -> Ordering {
-    let mut c1 = a.chars();
-    let mut c2 = b.chars();
+pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
+    let mut c1 = a.as_ref().chars();
+    let mut c2 = b.as_ref().chars();
 
     let mut p1 = 0;
     let mut p2 = 0;
@@ -172,9 +175,9 @@ fn compare_os_str_inner(a: &OsStr, b: &OsStr) -> Ordering {
 }
 
 /// Sort a string slice.
-pub fn sort_str_slice(slice: &mut [&str]) {
+pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {
     slice.sort_by(|a, b| {
-        compare_str(a, b)
+        compare_str(a.as_ref(), b.as_ref())
     });
 }
 
@@ -242,117 +245,4 @@ fn sort_path_slice_inner<P: AsRef<Path>>(slice: &mut [P]) {
     slice.sort_by(|a, b| {
         compare_os_str_inner(a.as_ref().as_os_str(), b.as_ref().as_os_str())
     });
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_compare_lv0_1() {
-        assert_eq!(Ordering::Less, compare_str("1", "2"));
-    }
-
-    #[test]
-    fn test_compare_lv0_2() {
-        assert_eq!(Ordering::Equal, compare_str("1", "1"));
-    }
-
-    #[test]
-    fn test_compare_lv0_3() {
-        assert_eq!(Ordering::Greater, compare_str("2", "1"));
-    }
-
-    #[test]
-    fn test_compare_lv1_1() {
-        assert_eq!(Ordering::Less, compare_str("abc", "bbb"));
-    }
-
-    #[test]
-    fn test_compare_lv1_2() {
-        assert_eq!(Ordering::Less, compare_str("abcd", "bbb"));
-    }
-
-    #[test]
-    fn test_compare_lv1_3() {
-        assert_eq!(Ordering::Less, compare_str("abcd", "bbbbb"));
-    }
-
-    #[test]
-    fn test_compare_lv1_4() {
-        assert_eq!(Ordering::Equal, compare_str("abcd", "abcd"));
-    }
-
-    #[test]
-    fn test_compare_lv2_1() {
-        assert_eq!(Ordering::Equal, compare_str("abc321", "abc321"));
-    }
-
-    #[test]
-    fn test_compare_lv2_2() {
-        assert_eq!(Ordering::Greater, compare_str("abc3210", "abc321"));
-    }
-
-    #[test]
-    fn test_compare_lv3_1() {
-        assert_eq!(Ordering::Less, compare_str("abc320", "abc321"));
-    }
-
-    #[test]
-    fn test_compare_lv3_2() {
-        assert_eq!(Ordering::Greater, compare_str("abc322", "abc321"));
-    }
-
-    #[test]
-    fn test_compare_lv4_1() {
-        assert_eq!(Ordering::Less, compare_str("abc1", "abc321"));
-    }
-
-    #[test]
-    fn test_compare_lv4_2() {
-        assert_eq!(Ordering::Less, compare_str("abc5", "abc321"));
-    }
-
-    #[test]
-    fn test_compare_lv4_3() {
-        assert_eq!(Ordering::Greater, compare_str("abc567", "abc321"));
-    }
-
-    #[test]
-    fn test_compare_lv4_4() {
-        assert_eq!(Ordering::Less, compare_str("abc5d67", "abc321"));
-    }
-
-    #[test]
-    fn test_compare_lv5_1() {
-        assert_eq!(Ordering::Equal, compare_str("abc123d123", "abc123d123"));
-    }
-
-    #[test]
-    fn test_compare_lv5_2() {
-        assert_eq!(Ordering::Less, compare_str("abc123d1", "abc123d123"));
-    }
-
-    #[test]
-    fn test_compare_lv5_3() {
-        assert_eq!(Ordering::Greater, compare_str("abc123d1234", "abc123d123"));
-    }
-
-    #[test]
-    fn test_sort_str_slice() {
-        let mut array = ["第10-15-2章", "第1-2章", "第2-4章", "第2-33章", "第1章", "第1-4章", "第2-3章", "第1-11章", "第10-1章", "第3-1章", "第2-10章", "第2-2章", "第1-3章", "第10-15章", "第10-2章", "第10-15-1章", "第2-1章", "第2-12章", "第1-10章", "第3-10章"];
-
-        sort_str_slice(&mut array);
-
-        assert_eq!(["第1章", "第1-2章", "第1-3章", "第1-4章", "第1-10章", "第1-11章", "第2-1章", "第2-2章", "第2-3章", "第2-4章", "第2-10章", "第2-12章", "第2-33章", "第3-1章", "第3-10章", "第10-1章", "第10-2章", "第10-15章", "第10-15-1章", "第10-15-2章"], array);
-    }
-
-    #[test]
-    fn test_sort_path_slice() {
-        let mut array = [Path::new("第10-15-2章"), Path::new("第1-2章"), Path::new("第2-4章"), Path::new("第2-33章"), Path::new("第1章"), Path::new("第1-4章"), Path::new("第2-3章"), Path::new("第1-11章"), Path::new("第10-1章"), Path::new("第3-1章"), Path::new("第2-10章"), Path::new("第2-2章"), Path::new("第1-3章"), Path::new("第10-15章"), Path::new("第10-2章"), Path::new("第10-15-1章"), Path::new("第2-1章"), Path::new("第2-12章"), Path::new("第1-10章"), Path::new("第3-10章")];
-
-        sort_path_slice(&mut array);
-
-        assert_eq!([Path::new("第1章"), Path::new("第1-2章"), Path::new("第1-3章"), Path::new("第1-4章"), Path::new("第1-10章"), Path::new("第1-11章"), Path::new("第2-1章"), Path::new("第2-2章"), Path::new("第2-3章"), Path::new("第2-4章"), Path::new("第2-10章"), Path::new("第2-12章"), Path::new("第2-33章"), Path::new("第3-1章"), Path::new("第3-10章"), Path::new("第10-1章"), Path::new("第10-2章"), Path::new("第10-15章"), Path::new("第10-15-1章"), Path::new("第10-15-2章")], array);
-    }
 }

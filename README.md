@@ -4,7 +4,9 @@ Alphanumeric Sort
 [![Build Status](https://travis-ci.org/magiclen/alphanumeric-sort.svg?branch=master)](https://travis-ci.org/magiclen/alphanumeric-sort)
 [![Build status](https://ci.appveyor.com/api/projects/status/rpl57gugi6eojwms/branch/master?svg=true)](https://ci.appveyor.com/project/magiclen/alphanumeric-sort/branch/master)
 
-## Motive and Examples
+This crate can help you sort order for files and folders whose names contain numerals.
+
+## Motives and Examples
 
 With the Rust native `sort` method, strings and paths are arranged into lexicographical order. It's natural, but in some cases, it is not so intuitive. For example, there are screen snap shots named by **shot-%N** like **shot-2**, **shot-1**, **shot-11**. After a lexicographical sorting, they will be ordered into **shot-1**, **shot-11**, **shot-2**. However, we would prefer **shot-1**, **shot-2**, **shot-11** mostly.
 
