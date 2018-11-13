@@ -226,10 +226,9 @@ pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
                 let (i, j) = paths_index[index];
                 slice.swap(i, j);
 
-                for index in (index + 1)..len {
-                    let t = &mut paths_index[index];
-                    if t.0 == j {
-                        t.0 = i;
+                for (t, _) in paths_index.iter_mut().skip(index + 1) {
+                    if *t == j {
+                        *t = i;
                         break;
                     }
                 }
