@@ -1,6 +1,6 @@
 [package]
 name = "alphanumeric-sort"
-version = "1.0.6"
+version = "1.0.7"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/alphanumeric-sort"
 homepage = "https://magiclen.org/alphanumeric-sort"
