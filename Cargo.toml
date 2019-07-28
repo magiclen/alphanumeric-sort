@@ -10,8 +10,8 @@ description= "This crate can help you sort order for files and folders whose nam
 readme = "README.md"
 license = "MIT"
 
-[badges]
-travis-ci = { repository = "magiclen/alphanumeric-sort", branch = "master" }
-appveyor = { repository = "magiclen/alphanumeric-sort", branch = "master", service = "github" }
+[badges.travis-ci]
+repository = "magiclen/alphanumeric-sort"
+branch = "master"
 
 [dependencies]
