@@ -1,75 +1,70 @@
-/*!
-# Alphanumeric Sort
-
-This crate can help you sort order for files and folders whose names contain numerals.
-
-## Motives and Examples
-
-With the Rust native `sort` method, strings and paths are arranged into lexicographical order. It's natural, but in some cases, it is not so intuitive. For example, there are screen snap shots named by **shot-%N** like **shot-2**, **shot-1**, **shot-11**. After a lexicographical sorting, they will be ordered into **shot-1**, **shot-11**, **shot-2**. However, we would prefer **shot-1**, **shot-2**, **shot-11** mostly.
-
-```rust
-let mut names = ["shot-2", "shot-1", "shot-11"];
-
-names.sort();
-
-assert_eq!(["shot-1", "shot-11", "shot-2"], names);
-```
-
-Thus, in this kind of case, an alphanumeric sort might come in handy.
-
-```rust
-extern crate alphanumeric_sort;
-
-let mut names = ["shot-2", "shot-1", "shot-11"];
-
-alphanumeric_sort::sort_str_slice(&mut names);
-
-assert_eq!(["shot-1", "shot-2", "shot-11"], names);
-```
-
-```rust
-extern crate alphanumeric_sort;
-
-use std::path::Path;
-
-let mut paths = [Path::new("shot-2"), Path::new("shot-1"), Path::new("shot-11")];
-
-alphanumeric_sort::sort_path_slice(&mut paths);
-
-assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], paths);
-```
-*/
+//! # Alphanumeric Sort
+//!
+//! This crate can help you sort order for files and folders whose names contain numerals.
+//!
+//! ## Motives and Examples
+//!
+//! With the Rust native `sort` method, strings and paths are arranged into lexicographical order. It's natural, but in some cases, it is not so intuitive. For example, there are screen snap shots named by **shot-%N** like **shot-2**, **shot-1**, **shot-11**. After a lexicographical sorting, they will be ordered into **shot-1**, **shot-11**, **shot-2**. However, we would prefer **shot-1**, **shot-2**, **shot-11** mostly.
+//!
+//! ```rust
+//! let mut names = ["shot-2", "shot-1", "shot-11"];
+//!
+//! names.sort();
+//!
+//! assert_eq!(["shot-1", "shot-11", "shot-2"], names);
+//! ```
+//!
+//! Thus, in this kind of case, an alphanumeric sort might come in handy.
+//!
+//! ```rust
+//! extern crate alphanumeric_sort;
+//!
+//! let mut names = ["shot-2", "shot-1", "shot-11"];
+//!
+//! alphanumeric_sort::sort_str_slice(&mut names);
+//!
+//! assert_eq!(["shot-1", "shot-2", "shot-11"], names);
+//! ```
+//!
+//! ```rust
+//! extern crate alphanumeric_sort;
+//!
+//! use std::path::Path;
+//!
+//! let mut paths = [Path::new("shot-2"), Path::new("shot-1"), Path::new("shot-11")];
+//!
+//! alphanumeric_sort::sort_path_slice(&mut paths);
+//!
+//! assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], paths);
+//! ```
 
 use std::cmp::Ordering;
-use std::path::Path;
 use std::ffi::OsStr;
+use std::path::Path;
 
 macro_rules! ordering_different_return {
-    ( $a:expr, $b:expr ) => {
-        {
-            if $a > $b {
-                return Ordering::Greater;
-            } else if $a < $b {
-                return Ordering::Less;
-            }
+    ($a:expr, $b:expr) => {{
+        if $a > $b {
+            return Ordering::Greater;
+        } else if $a < $b {
+            return Ordering::Less;
         }
-    };
+    }};
 }
 
 macro_rules! ordering {
-    ( $a:expr, $b:expr ) => {
-        {
-            if $a > $b {
-                Ordering::Greater
-            } else if $a < $b {
-                Ordering::Less
-            } else {
-                Ordering::Equal
-            }
+    ($a:expr, $b:expr) => {{
+        if $a > $b {
+            Ordering::Greater
+        } else if $a < $b {
+            Ordering::Less
+        } else {
+            Ordering::Equal
         }
-    };
+    }};
 }
 
+#[allow(clippy::cast_lossless, clippy::while_let_on_iterator)]
 /// Compare two strings.
 pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
     let mut c1 = a.as_ref().chars();
@@ -85,9 +80,13 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
         let ca = {
             match v1.take() {
                 Some(c) => c,
-                None => match c1.next() {
-                    Some(c) => c,
-                    None => { break; }
+                None => {
+                    match c1.next() {
+                        Some(c) => c,
+                        None => {
+                            break;
+                        }
+                    }
                 }
             }
         };
@@ -95,9 +94,13 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
         let cb = {
             match v2.take() {
                 Some(c) => c,
-                None => match c2.next() {
-                    Some(c) => c,
-                    None => { break; }
+                None => {
+                    match c2.next() {
+                        Some(c) => c,
+                        None => {
+                            break;
+                        }
+                    }
                 }
             }
         };
@@ -107,12 +110,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             let mut da = ca as u32 as f64 - b'0' as f64;
             let mut db = cb as u32 as f64 - b'0' as f64;
 
-            loop {
-                let ca = match c1.next() {
-                    Some(c) => c,
-                    None => { break; }
-                };
-
+            while let Some(ca) = c1.next() {
                 if ca >= '0' && ca <= '9' {
                     da = da * 10.0 + (ca as u32 as f64 - b'0' as f64);
                     p1 += 1;
@@ -122,12 +120,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
                 }
             }
 
-            loop {
-                let cb = match c2.next() {
-                    Some(c) => c,
-                    None => { break; }
-                };
-
+            while let Some(cb) = c2.next() {
                 if cb >= '0' && cb <= '9' {
                     db = db * 10.0 + (cb as u32 as f64 - b'0' as f64);
                     p2 += 1;
@@ -138,13 +131,11 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             }
 
             ordering_different_return!(da, db);
-        } else {
-            if ca != cb {
-                if (ca > (255 as char)) ^ (cb > (255 as char)) {
-                    return ordering!(cb, ca);
-                } else {
-                    return ordering!(ca, cb);
-                }
+        } else if ca != cb {
+            if (ca > (255 as char)) ^ (cb > (255 as char)) {
+                return ordering!(cb, ca);
+            } else {
+                return ordering!(ca, cb);
             }
         }
     }
@@ -176,9 +167,7 @@ fn compare_os_str_inner(a: &OsStr, b: &OsStr) -> Ordering {
 
 /// Sort a string slice.
 pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {
-    slice.sort_by(|a, b| {
-        compare_str(a.as_ref(), b.as_ref())
-    });
+    slice.sort_by(|a, b| compare_str(a.as_ref(), b.as_ref()));
 }
 
 /// Sort a path slice.
@@ -206,9 +195,7 @@ pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
             }
 
             if use_str {
-                paths.sort_by(|a, b| {
-                    compare_str(a.1, b.1)
-                });
+                paths.sort_by(|a, b| compare_str(a.1, b.1));
 
                 paths_index.reserve(len);
 
@@ -241,7 +228,5 @@ pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
 }
 
 fn sort_path_slice_inner<P: AsRef<Path>>(slice: &mut [P]) {
-    slice.sort_by(|a, b| {
-        compare_os_str_inner(a.as_ref().as_os_str(), b.as_ref().as_os_str())
-    });
+    slice.sort_by(|a, b| compare_os_str_inner(a.as_ref().as_os_str(), b.as_ref().as_os_str()));
 }

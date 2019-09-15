@@ -2,10 +2,6 @@ extern crate alphanumeric_sort;
 
 use std::path::{Path, PathBuf};
 
-#[cfg(windows)]
-const FILES_PATH: &str = r"examples\files";
-
-#[cfg(not(windows))]
 const FILES_PATH: &str = "examples/files";
 
 fn main() {
