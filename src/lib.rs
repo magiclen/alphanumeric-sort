@@ -64,7 +64,7 @@ macro_rules! ordering {
     }};
 }
 
-#[allow(clippy::cast_lossless, clippy::while_let_on_iterator)]
+#[allow(clippy::while_let_on_iterator)]
 /// Compare two strings.
 pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
     let mut c1 = a.as_ref().chars();
@@ -107,12 +107,12 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
         p2 += 1;
 
         if ca >= '0' && ca <= '9' && cb >= '0' && cb <= '9' {
-            let mut da = ca as u32 as f64 - b'0' as f64;
-            let mut db = cb as u32 as f64 - b'0' as f64;
+            let mut da = f64::from(ca as u32) - f64::from(b'0');
+            let mut db = f64::from(cb as u32) - f64::from(b'0');
 
             while let Some(ca) = c1.next() {
                 if ca >= '0' && ca <= '9' {
-                    da = da * 10.0 + (ca as u32 as f64 - b'0' as f64);
+                    da = da * 10.0 + (f64::from(ca as u32) - f64::from(b'0'));
                     p1 += 1;
                 } else {
                     v1 = Some(ca);
@@ -122,7 +122,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
 
             while let Some(cb) = c2.next() {
                 if cb >= '0' && cb <= '9' {
-                    db = db * 10.0 + (cb as u32 as f64 - b'0' as f64);
+                    db = db * 10.0 + (f64::from(cb as u32) - f64::from(b'0'));
                     p2 += 1;
                 } else {
                     v2 = Some(cb);
