@@ -72,9 +72,6 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
     let mut c1 = a.as_ref().chars();
     let mut c2 = b.as_ref().chars();
 
-    let mut p1 = 0;
-    let mut p2 = 0;
-
     let mut v1: Option<char> = None;
     let mut v2: Option<char> = None;
 
@@ -82,31 +79,27 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
         let ca = {
             match v1.take() {
                 Some(c) => c,
-                None => {
-                    match c1.next() {
-                        Some(c) => c,
-                        None => {
-                            break;
-                        }
-                    }
-                }
+                None => match c1.next() {
+                    Some(c) => c,
+                    None => match c2.next() {
+                        Some(_) => return Ordering::Less,
+                        None => return Ordering::Equal,
+                    },
+                },
             }
         };
-        p1 += 1;
+
         let cb = {
             match v2.take() {
                 Some(c) => c,
-                None => {
-                    match c2.next() {
-                        Some(c) => c,
-                        None => {
-                            break;
-                        }
+                None => match c2.next() {
+                    Some(c) => c,
+                    None => {
+                        return Ordering::Greater;
                     }
-                }
+                },
             }
         };
-        p2 += 1;
 
         if ca >= '0' && ca <= '9' && cb >= '0' && cb <= '9' {
             let mut da = f64::from(ca as u32) - f64::from(b'0');
@@ -115,7 +108,6 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             while let Some(ca) = c1.next() {
                 if ca >= '0' && ca <= '9' {
                     da = da * 10.0 + (f64::from(ca as u32) - f64::from(b'0'));
-                    p1 += 1;
                 } else {
                     v1 = Some(ca);
                     break;
@@ -125,7 +117,6 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             while let Some(cb) = c2.next() {
                 if cb >= '0' && cb <= '9' {
                     db = db * 10.0 + (f64::from(cb as u32) - f64::from(b'0'));
-                    p2 += 1;
                 } else {
                     v2 = Some(cb);
                     break;
@@ -141,8 +132,6 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             }
         }
     }
-
-    return ordering!(p1, p2);
 }
 
 /// Compare two OsStr.
