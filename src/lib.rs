@@ -1,5 +1,5 @@
 /*!
-# Alphanumeric Sort
+,v1# Alph, v1 = {:?}anumeri, v2 = {:?}c Sor,v2t
 
 This crate can help you sort order for files and folders whose names contain numerals.
 
@@ -81,10 +81,13 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
                 Some(c) => c,
                 None => match c1.next() {
                     Some(c) => c,
-                    None => match c2.next() {
-                        Some(_) => return Ordering::Less,
-                        None => return Ordering::Equal,
-                    },
+                    None => {
+                        if v2.take().is_some() || c2.next().is_some() {
+                            return Ordering::Less;
+                        } else {
+                            return Ordering::Equal;
+                        }
+                    }
                 },
             }
         };

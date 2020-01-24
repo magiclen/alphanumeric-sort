@@ -104,6 +104,15 @@ fn compare_lv5_5() {
 }
 
 #[test]
+fn compare_lv5_6() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1", "1a"));
+}
+
+#[test]
+fn compare_lv5_7() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1a", "1"));
+}
+#[test]
 fn sort_str_slice() {
     let mut array = [
         "第10-15-2章",
