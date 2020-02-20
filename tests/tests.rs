@@ -10,12 +10,12 @@ fn compare_lv0_1() {
 
 #[test]
 fn compare_lv0_2() {
-    assert_eq!(Ordering::Equal, alphanumeric_sort::compare_str("1", "1"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("2", "1"));
 }
 
 #[test]
 fn compare_lv0_3() {
-    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("2", "1"));
+    assert_eq!(Ordering::Equal, alphanumeric_sort::compare_str("1", "1"));
 }
 
 #[test]
@@ -25,27 +25,47 @@ fn compare_lv1_1() {
 
 #[test]
 fn compare_lv1_2() {
-    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abcd", "bbb"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("bbb", "abc"));
 }
 
 #[test]
 fn compare_lv1_3() {
-    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abcd", "bbbbb"));
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abcd", "bbb"));
 }
 
 #[test]
 fn compare_lv1_4() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("bbb", "abcd"));
+}
+
+#[test]
+fn compare_lv1_5() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abcd", "bbbbb"));
+}
+
+#[test]
+fn compare_lv1_6() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("bbbbb", "abcd"));
+}
+
+#[test]
+fn compare_lv1_7() {
     assert_eq!(Ordering::Equal, alphanumeric_sort::compare_str("abcd", "abcd"));
 }
 
 #[test]
 fn compare_lv2_1() {
-    assert_eq!(Ordering::Equal, alphanumeric_sort::compare_str("abc321", "abc321"));
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abc321", "abc3210"));
 }
 
 #[test]
 fn compare_lv2_2() {
     assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("abc3210", "abc321"));
+}
+
+#[test]
+fn compare_lv2_3() {
+    assert_eq!(Ordering::Equal, alphanumeric_sort::compare_str("abc321", "abc321"));
 }
 
 #[test]
@@ -65,53 +85,64 @@ fn compare_lv4_1() {
 
 #[test]
 fn compare_lv4_2() {
-    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abc5", "abc321"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("abc321", "abc1"));
 }
 
 #[test]
 fn compare_lv4_3() {
-    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("abc567", "abc321"));
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abc5", "abc321"));
 }
 
 #[test]
 fn compare_lv4_4() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("abc321", "abc5"));
+}
+
+#[test]
+fn compare_lv4_5() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abc321", "abc567"));
+}
+
+#[test]
+fn compare_lv4_6() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("abc567", "abc321"));
+}
+
+#[test]
+fn compare_lv4_7() {
     assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abc5d67", "abc321"));
 }
 
 #[test]
-fn compare_lv5_1() {
-    assert_eq!(Ordering::Equal, alphanumeric_sort::compare_str("abc123d123", "abc123d123"));
+fn compare_lv4_8() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("abc321", "abc5d67"));
 }
 
 #[test]
-fn compare_lv5_2() {
+fn compare_lv5_1() {
     assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abc123d1", "abc123d123"));
 }
 
 #[test]
+fn compare_lv5_2() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("abc123d123", "abc123d1"));
+}
+
+#[test]
 fn compare_lv5_3() {
-    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("abc123d1234", "abc123d123"));
+    assert_eq!(Ordering::Equal, alphanumeric_sort::compare_str("abc123d123", "abc123d123"));
 }
 
 #[test]
-fn compare_lv5_4() {
-    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1a", "1aa"));
-}
-
-#[test]
-fn compare_lv5_5() {
-    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1aa", "1a"));
-}
-
-#[test]
-fn compare_lv5_6() {
+fn compare_lv6_1() {
     assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1", "1a"));
 }
 
 #[test]
-fn compare_lv5_7() {
+fn compare_lv6_2() {
     assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1a", "1"));
 }
+
 #[test]
 fn sort_str_slice() {
     let mut array = [
