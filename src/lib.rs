@@ -5,7 +5,7 @@ This crate can help you sort order for files and folders whose names contain num
 
 ## Motives and Examples
 
-With the Rust native `sort` method, strings and paths are arranged into lexicographical order. It's natural, but in some cases, it is not so intuitive. For example, there are screen snap shots named by **shot-%N** like **shot-2**, **shot-1**, **shot-11**. After a lexicographical sorting, they will be ordered into **shot-1**, **shot-11**, **shot-2**. However, we would prefer **shot-1**, **shot-2**, **shot-11** mostly.
+With the Rust native `sort` method, strings and paths are arranged into lexicographical order. In some cases, it is not so intuitive. For example, there are screen snap shots named by **shot-%N** like **shot-2**, **shot-1**, **shot-11**. After a lexicographical sorting, they will be ordered into **shot-1**, **shot-11**, **shot-2**. However, we would prefer **shot-1**, **shot-2**, **shot-11** mostly.
 
 ```rust
 let mut names = ["shot-2", "shot-1", "shot-11"];
@@ -43,28 +43,6 @@ assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], pat
 use std::cmp::Ordering;
 use std::ffi::OsStr;
 use std::path::Path;
-
-macro_rules! ordering_different_return {
-    ($a:expr, $b:expr) => {{
-        if $a > $b {
-            return Ordering::Greater;
-        } else if $a < $b {
-            return Ordering::Less;
-        }
-    }};
-}
-
-macro_rules! ordering {
-    ($a:expr, $b:expr) => {{
-        if $a > $b {
-            Ordering::Greater
-        } else if $a < $b {
-            Ordering::Less
-        } else {
-            Ordering::Equal
-        }
-    }};
-}
 
 #[allow(clippy::while_let_on_iterator)]
 /// Compare two strings.
@@ -130,18 +108,36 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
                 }
             }
 
-            ordering_different_return!(da, db);
-        } else if ca != cb {
-            if (ca > (255 as char)) ^ (cb > (255 as char)) {
-                return ordering!(cb, ca);
-            } else {
-                return ordering!(ca, cb);
+            match da.partial_cmp(&db) {
+                Some(ordering) if ordering != Ordering::Equal => {
+                    return ordering;
+                }
+                _ => (),
+            }
+        } else {
+            match ca.cmp(&cb) {
+                Ordering::Equal => (),
+                Ordering::Greater => {
+                    return if (ca > (255 as char)) ^ (cb > (255 as char)) {
+                        Ordering::Less
+                    } else {
+                        Ordering::Greater
+                    };
+                }
+                Ordering::Less => {
+                    return if (ca > (255 as char)) ^ (cb > (255 as char)) {
+                        Ordering::Greater
+                    } else {
+                        Ordering::Less
+                    };
+                }
             }
         }
     }
 }
 
 /// Compare two OsStr.
+#[inline]
 pub fn compare_os_str(a: &OsStr, b: &OsStr) -> Ordering {
     let sa = match a.to_str() {
         Some(s) => s,
@@ -149,6 +145,7 @@ pub fn compare_os_str(a: &OsStr, b: &OsStr) -> Ordering {
             return compare_os_str_inner(a, b);
         }
     };
+
     let sb = match b.to_str() {
         Some(s) => s,
         None => {
@@ -159,11 +156,13 @@ pub fn compare_os_str(a: &OsStr, b: &OsStr) -> Ordering {
     compare_str(sa, sb)
 }
 
+#[inline]
 fn compare_os_str_inner(a: &OsStr, b: &OsStr) -> Ordering {
-    a.partial_cmp(b).unwrap()
+    a.cmp(b)
 }
 
 /// Sort a string slice.
+#[inline]
 pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {
     slice.sort_by(|a, b| compare_str(a.as_ref(), b.as_ref()));
 }
@@ -172,59 +171,54 @@ pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {
 pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
     let mut use_str = true;
 
-    let len = slice.len();
+    let length = slice.len();
 
-    {
-        let mut paths_index = Vec::new();
+    let mut paths = Vec::with_capacity(length);
 
-        {
-            let mut paths = Vec::with_capacity(len);
-
-            for (i, p) in slice.iter().enumerate() {
-                let s = match p.as_ref().as_os_str().to_str() {
-                    Some(s) => s,
-                    None => {
-                        use_str = false;
-                        break;
-                    }
-                };
-
-                paths.push((i, s));
+    for (i, p) in slice.iter().enumerate() {
+        let s = match p.as_ref().as_os_str().to_str() {
+            Some(s) => s,
+            None => {
+                use_str = false;
+                break;
             }
+        };
 
-            if use_str {
-                paths.sort_by(|a, b| compare_str(a.1, b.1));
-
-                paths_index.reserve(len);
-
-                for (j, &(i, _)) in paths.iter().enumerate() {
-                    if i != j {
-                        paths_index.push((i, j))
-                    }
-                }
-            }
-        }
-
-        if use_str {
-            let len = paths_index.len();
-            for index in 0..len {
-                let (i, j) = paths_index[index];
-                slice.swap(i, j);
-
-                for (t, _) in paths_index.iter_mut().skip(index + 1) {
-                    if *t == j {
-                        *t = i;
-                        break;
-                    }
-                }
-            }
-            return;
-        }
+        paths.push((i, s));
     }
 
-    sort_path_slice_inner(slice);
+    if use_str {
+        paths.sort_by(|a, b| compare_str(a.1, b.1));
+
+        let mut paths_index = Vec::with_capacity(length);
+
+        for (j, &(i, _)) in paths.iter().enumerate() {
+            if i != j {
+                paths_index.push((i, j))
+            }
+        }
+
+        let length = paths_index.len();
+
+        for index in 0..length {
+            let (i, j) = paths_index[index];
+
+            slice.swap(i, j);
+
+            for (t, _) in paths_index[index + 1..].iter_mut() {
+                if *t == j {
+                    *t = i;
+                    break;
+                }
+            }
+        }
+    } else {
+        // fallback
+        sort_path_slice_inner(slice);
+    }
 }
 
+#[inline]
 fn sort_path_slice_inner<P: AsRef<Path>>(slice: &mut [P]) {
     slice.sort_by(|a, b| compare_os_str_inner(a.as_ref().as_os_str(), b.as_ref().as_os_str()));
 }

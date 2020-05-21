@@ -144,6 +144,16 @@ fn compare_lv6_2() {
 }
 
 #[test]
+fn compare_lv7_1() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("中", "1"));
+}
+
+#[test]
+fn compare_lv7_2() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1", "中"));
+}
+
+#[test]
 fn sort_str_slice() {
     let mut array = [
         "第10-15-2章",
