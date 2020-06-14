@@ -1,6 +1,6 @@
 [package]
 name = "alphanumeric-sort"
-version = "1.0.13"
+version = "1.1.0"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/alphanumeric-sort"
@@ -17,6 +17,9 @@ branch = "master"
 
 [dependencies]
 
+[dev-dependencies]
+bencher = "0.1.5"
+
 [features]
 std = []
 default = ["std"]
@@ -24,3 +27,8 @@ default = ["std"]
 [[example]]
 name = "sort_files_by_file_names"
 required-features = ["std"]
+
+[[bench]]
+name = "bench"
+required-features = ["std"]
+harness = false

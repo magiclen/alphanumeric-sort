@@ -40,6 +40,42 @@ alphanumeric_sort::sort_path_slice(&mut paths);
 assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], paths);
 # }
 ```
+
+## About the `compare_*` Functions and the `sort_*` Functions
+
+To sort a slice, the code can also be written like,
+
+```rust
+extern crate alphanumeric_sort;
+
+# #[cfg(feature = "std")] {
+use std::path::Path;
+
+let mut paths = [Path::new("shot-2"), Path::new("shot-1"), Path::new("shot-11")];
+
+paths.sort_by(|a, b| alphanumeric_sort::compare_path(a, b));
+
+assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], paths);
+# }
+```
+
+But it is not recommended because the `compare_*` functions try to convert data (e.g `Path`, `CStr`) to `&str` every time in its execution and thus they are slower than the `sort_*` functions when sorting a slice.
+
+## No Std
+
+Disable the default features to compile this crate without std.
+
+```toml
+[dependencies.alphanumeric-sort]
+version = "*"
+default-features = false
+```
+
+## Benchmark
+
+```bash
+cargo bench
+```
 */
 
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -200,6 +236,15 @@ fn compare_c_str_inner<A: AsRef<CStr>, B: AsRef<CStr>>(a: A, b: B) -> Ordering {
     a.as_ref().cmp(b.as_ref())
 }
 
+/// Compare two `Path`.
+#[cfg(feature = "std")]
+#[inline]
+pub fn compare_path<A: AsRef<Path>, B: AsRef<Path>>(a: A, b: B) -> Ordering {
+    compare_os_str(a.as_ref(), b.as_ref())
+}
+
+// TODO -----------
+
 /// Sort a `str` slice.
 #[inline]
 pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {
@@ -237,7 +282,7 @@ pub fn sort_os_str_slice<S: AsRef<OsStr>>(slice: &mut [S]) {
 
 #[cfg(feature = "std")]
 #[inline]
-pub fn sort_os_str_slice_inner<S: AsRef<OsStr>>(slice: &mut [S]) {
+fn sort_os_str_slice_inner<S: AsRef<OsStr>>(slice: &mut [S]) {
     slice.sort_by(|a, b| compare_os_str_inner(a, b));
 }
 
@@ -273,7 +318,7 @@ pub fn sort_c_str_slice<S: AsRef<CStr>>(slice: &mut [S]) {
 
 #[cfg(feature = "std")]
 #[inline]
-pub fn sort_c_str_slice_inner<S: AsRef<CStr>>(slice: &mut [S]) {
+fn sort_c_str_slice_inner<S: AsRef<CStr>>(slice: &mut [S]) {
     slice.sort_by(|a, b| compare_c_str(a, b));
 }
 
