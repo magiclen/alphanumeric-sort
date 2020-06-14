@@ -16,3 +16,7 @@ repository = "magiclen/alphanumeric-sort"
 branch = "master"
 
 [dependencies]
+
+[features]
+std = []
+default = ["std"]

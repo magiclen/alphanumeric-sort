@@ -138,15 +138,15 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
 
 /// Compare two OsStr.
 #[inline]
-pub fn compare_os_str(a: &OsStr, b: &OsStr) -> Ordering {
-    let sa = match a.to_str() {
+pub fn compare_os_str<A: AsRef<OsStr>, B: AsRef<OsStr>>(a: A, b: B) -> Ordering {
+    let sa = match a.as_ref().to_str() {
         Some(s) => s,
         None => {
             return compare_os_str_inner(a, b);
         }
     };
 
-    let sb = match b.to_str() {
+    let sb = match b.as_ref().to_str() {
         Some(s) => s,
         None => {
             return compare_os_str_inner(a, b);
@@ -157,14 +157,20 @@ pub fn compare_os_str(a: &OsStr, b: &OsStr) -> Ordering {
 }
 
 #[inline]
-fn compare_os_str_inner(a: &OsStr, b: &OsStr) -> Ordering {
-    a.cmp(b)
+fn compare_os_str_inner<A: AsRef<OsStr>, B: AsRef<OsStr>>(a: A, b: B) -> Ordering {
+    a.as_ref().cmp(b.as_ref())
 }
 
-/// Sort a string slice.
+/// Sort a `str` slice.
 #[inline]
 pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {
-    slice.sort_by(|a, b| compare_str(a.as_ref(), b.as_ref()));
+    slice.sort_by(|a, b| compare_str(a, b));
+}
+
+/// Sort an `OsStr` slice.
+#[inline]
+pub fn sort_os_str_slice<S: AsRef<OsStr>>(slice: &mut [S]) {
+    slice.sort_by(|a, b| compare_os_str(a, b));
 }
 
 /// Sort a path slice.
