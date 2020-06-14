@@ -1,6 +1,8 @@
 extern crate alphanumeric_sort;
 
 use std::cmp::Ordering;
+
+#[cfg(feature = "std")]
 use std::path::Path;
 
 #[test]
@@ -207,6 +209,7 @@ fn sort_str_slice() {
     );
 }
 
+#[cfg(feature = "std")]
 #[test]
 fn sort_path_slice() {
     let mut array = [
