@@ -48,7 +48,6 @@ To sort a slice, the code can also be written like,
 ```rust
 extern crate alphanumeric_sort;
 
-# #[cfg(feature = "std")] {
 use std::path::Path;
 
 let mut paths = [Path::new("shot-2"), Path::new("shot-1"), Path::new("shot-11")];
@@ -56,7 +55,6 @@ let mut paths = [Path::new("shot-2"), Path::new("shot-1"), Path::new("shot-11")]
 paths.sort_by(|a, b| alphanumeric_sort::compare_path(a, b));
 
 assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], paths);
-# }
 ```
 
 But it is not recommended because the `compare_*` functions try to convert data (e.g `Path`, `CStr`) to `&str` every time in its execution and thus they are slower than the `sort_*` functions when sorting a slice.
