@@ -380,6 +380,7 @@ fn sort_slice_by_path_inner<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
 
 // TODO -----------
 
+#[allow(clippy::redundant_closure)]
 /// Sort a `str` slice.
 #[inline]
 pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {
@@ -389,108 +390,23 @@ pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {
 /// Sort an `OsStr` slice.
 #[cfg(feature = "std")]
 pub fn sort_os_str_slice<S: AsRef<OsStr>>(slice: &mut [S]) {
-    let mut use_str = true;
-
-    let mut ref_index_str_pairs = Vec::with_capacity(slice.len());
-
-    for (i, p) in slice.iter().enumerate() {
-        let s = match p.as_ref().to_str() {
-            Some(s) => s,
-            None => {
-                use_str = false;
-                break;
-            }
-        };
-
-        ref_index_str_pairs.push((i, s));
-    }
-
-    if use_str {
-        let ref_indexes = ref_index_str_pairs_to_ref_indexes(ref_index_str_pairs);
-
-        sort_slice_ref_indexes(slice, ref_indexes);
-    } else {
-        // fallback
-        sort_os_str_slice_inner(slice);
-    }
-}
-
-#[cfg(feature = "std")]
-#[inline]
-fn sort_os_str_slice_inner<S: AsRef<OsStr>>(slice: &mut [S]) {
-    slice.sort_by(|a, b| compare_os_str_inner(a, b));
+    sort_slice_by_os_str_key(slice, |e| e.as_ref())
 }
 
 /// Sort a `CStr` slice.
 #[cfg(feature = "std")]
 #[inline]
 pub fn sort_c_str_slice<S: AsRef<CStr>>(slice: &mut [S]) {
-    let mut use_str = true;
-
-    let mut ref_index_str_pairs = Vec::with_capacity(slice.len());
-
-    for (i, p) in slice.iter().enumerate() {
-        let s = match p.as_ref().to_str() {
-            Ok(s) => s,
-            Err(_) => {
-                use_str = false;
-                break;
-            }
-        };
-
-        ref_index_str_pairs.push((i, s));
-    }
-
-    if use_str {
-        let ref_indexes = ref_index_str_pairs_to_ref_indexes(ref_index_str_pairs);
-
-        sort_slice_ref_indexes(slice, ref_indexes);
-    } else {
-        // fallback
-        sort_c_str_slice_inner(slice);
-    }
-}
-
-#[cfg(feature = "std")]
-#[inline]
-fn sort_c_str_slice_inner<S: AsRef<CStr>>(slice: &mut [S]) {
-    slice.sort_by(|a, b| compare_c_str(a, b));
+    sort_slice_by_c_str_key(slice, |e| e.as_ref())
 }
 
 /// Sort a `Path` slice.
 #[cfg(feature = "std")]
 pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
-    let mut use_str = true;
-
-    let mut ref_index_str_pairs = Vec::with_capacity(slice.len());
-
-    for (i, p) in slice.iter().enumerate() {
-        let s = match p.as_ref().as_os_str().to_str() {
-            Some(s) => s,
-            None => {
-                use_str = false;
-                break;
-            }
-        };
-
-        ref_index_str_pairs.push((i, s));
-    }
-
-    if use_str {
-        let ref_indexes = ref_index_str_pairs_to_ref_indexes(ref_index_str_pairs);
-
-        sort_slice_ref_indexes(slice, ref_indexes);
-    } else {
-        // fallback
-        sort_path_slice_inner(slice);
-    }
+    sort_slice_by_path_key(slice, |e| e.as_ref())
 }
 
-#[cfg(feature = "std")]
-#[inline]
-fn sort_path_slice_inner<P: AsRef<Path>>(slice: &mut [P]) {
-    slice.sort_by(|a, b| compare_os_str_inner(a.as_ref().as_os_str(), b.as_ref().as_os_str()));
-}
+// TODO -----------
 
 #[cfg(feature = "std")]
 #[inline]
