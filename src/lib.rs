@@ -690,6 +690,12 @@ pub fn sort_os_str_slice<S: AsRef<OsStr>>(slice: &mut [S]) {
     sort_slice_unstable_by_os_str_key(slice, |e| e.as_ref())
 }
 
+/// Reversely sort an `OsStr` slice.
+#[cfg(feature = "std")]
+pub fn sort_os_str_slice_rev<S: AsRef<OsStr>>(slice: &mut [S]) {
+    sort_slice_rev_unstable_by_os_str_key(slice, |e| e.as_ref())
+}
+
 /// Sort a `CStr` slice.
 #[cfg(feature = "std")]
 #[inline]
@@ -697,10 +703,23 @@ pub fn sort_c_str_slice<S: AsRef<CStr>>(slice: &mut [S]) {
     sort_slice_unstable_by_c_str_key(slice, |e| e.as_ref())
 }
 
+/// Reversely sort a `CStr` slice.
+#[cfg(feature = "std")]
+#[inline]
+pub fn sort_c_str_slice_rev<S: AsRef<CStr>>(slice: &mut [S]) {
+    sort_slice_rev_unstable_by_c_str_key(slice, |e| e.as_ref())
+}
+
 /// Sort a `Path` slice.
 #[cfg(feature = "std")]
 pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
     sort_slice_unstable_by_path_key(slice, |e| e.as_ref())
+}
+
+/// Reversely sort a `Path` slice.
+#[cfg(feature = "std")]
+pub fn sort_path_slice_rev<P: AsRef<Path>>(slice: &mut [P]) {
+    sort_slice_rev_unstable_by_path_key(slice, |e| e.as_ref())
 }
 
 // TODO -----------
