@@ -209,6 +209,77 @@ fn sort_str_slice() {
     );
 }
 
+#[test]
+fn sort_slice_by_str_key() {
+    #[derive(Debug)]
+    struct A(&'static str);
+
+    impl From<&'static str> for A {
+        #[inline]
+        fn from(s: &'static str) -> Self {
+            A(s)
+        }
+    }
+
+    impl PartialEq<A> for &str {
+        #[inline]
+        fn eq(&self, other: &A) -> bool {
+            self == &other.0
+        }
+    }
+
+    let mut array = [
+        A::from("第10-15-2章"),
+        A::from("第1-2章"),
+        A::from("第2-4章"),
+        A::from("第2-33章"),
+        A::from("第1章"),
+        A::from("第1-4章"),
+        A::from("第2-3章"),
+        A::from("第1-11章"),
+        A::from("第10-1章"),
+        A::from("第3-1章"),
+        A::from("第2-10章"),
+        A::from("第2-2章"),
+        A::from("第1-3章"),
+        A::from("第10-15章"),
+        A::from("第10-2章"),
+        A::from("第10-15-1章"),
+        A::from("第2-1章"),
+        A::from("第2-12章"),
+        A::from("第1-10章"),
+        A::from("第3-10章"),
+    ];
+
+    alphanumeric_sort::sort_slice_by_str_key(&mut array, |e| e.0);
+
+    assert_eq!(
+        [
+            "第1章",
+            "第1-2章",
+            "第1-3章",
+            "第1-4章",
+            "第1-10章",
+            "第1-11章",
+            "第2-1章",
+            "第2-2章",
+            "第2-3章",
+            "第2-4章",
+            "第2-10章",
+            "第2-12章",
+            "第2-33章",
+            "第3-1章",
+            "第3-10章",
+            "第10-1章",
+            "第10-2章",
+            "第10-15章",
+            "第10-15-1章",
+            "第10-15-2章"
+        ],
+        array
+    );
+}
+
 #[cfg(feature = "std")]
 #[test]
 fn sort_path_slice() {
@@ -236,6 +307,78 @@ fn sort_path_slice() {
     ];
 
     alphanumeric_sort::sort_path_slice(&mut array);
+
+    assert_eq!(
+        [
+            Path::new("第1章"),
+            Path::new("第1-2章"),
+            Path::new("第1-3章"),
+            Path::new("第1-4章"),
+            Path::new("第1-10章"),
+            Path::new("第1-11章"),
+            Path::new("第2-1章"),
+            Path::new("第2-2章"),
+            Path::new("第2-3章"),
+            Path::new("第2-4章"),
+            Path::new("第2-10章"),
+            Path::new("第2-12章"),
+            Path::new("第2-33章"),
+            Path::new("第3-1章"),
+            Path::new("第3-10章"),
+            Path::new("第10-1章"),
+            Path::new("第10-2章"),
+            Path::new("第10-15章"),
+            Path::new("第10-15-1章"),
+            Path::new("第10-15-2章")
+        ],
+        array
+    );
+}
+
+#[cfg(feature = "std")]
+#[test]
+fn sort_slice_by_path_key() {
+    #[derive(Debug)]
+    struct A(&'static Path);
+
+    impl From<&'static str> for A {
+        #[inline]
+        fn from(s: &'static str) -> Self {
+            A(Path::new(s))
+        }
+    }
+
+    impl PartialEq<A> for &Path {
+        #[inline]
+        fn eq(&self, other: &A) -> bool {
+            self == &other.0
+        }
+    }
+
+    let mut array = [
+        A::from("第10-15-2章"),
+        A::from("第1-2章"),
+        A::from("第2-4章"),
+        A::from("第2-33章"),
+        A::from("第1章"),
+        A::from("第1-4章"),
+        A::from("第2-3章"),
+        A::from("第1-11章"),
+        A::from("第10-1章"),
+        A::from("第3-1章"),
+        A::from("第2-10章"),
+        A::from("第2-2章"),
+        A::from("第1-3章"),
+        A::from("第10-15章"),
+        A::from("第10-2章"),
+        A::from("第10-15-1章"),
+        A::from("第2-1章"),
+        A::from("第2-12章"),
+        A::from("第1-10章"),
+        A::from("第3-10章"),
+    ];
+
+    alphanumeric_sort::sort_slice_by_path_key(&mut array, |e| e.0);
 
     assert_eq!(
         [
