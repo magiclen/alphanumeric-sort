@@ -270,7 +270,12 @@ pub fn sort_slice_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&
     slice: &mut [A],
     f: F,
 ) {
-    sort_slice_by_os_str_key_inner(slice, f, sort_slice_unstable_by_os_str_key_fallback)
+    sort_slice_by_os_str_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes_unstable,
+        sort_slice_unstable_by_os_str_key_fallback,
+    )
 }
 
 /// Sort a slice by a `OsStr` key.
@@ -280,13 +285,19 @@ pub fn sort_slice_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>
     slice: &mut [A],
     f: F,
 ) {
-    sort_slice_by_os_str_key_inner(slice, f, sort_slice_by_os_str_key_fallback)
+    sort_slice_by_os_str_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes,
+        sort_slice_by_os_str_key_fallback,
+    )
 }
 
 #[cfg(feature = "std")]
 fn sort_slice_by_os_str_key_inner<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
+    ref_index_str_pairs_to_ref_indexes: impl Fn(Vec<(usize, &str)>) -> Vec<(usize, usize)>,
     fallback: impl Fn(&mut [A], F),
 ) {
     let mut use_str = true;
@@ -338,7 +349,12 @@ pub fn sort_slice_unstable_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A)
     slice: &mut [A],
     f: F,
 ) {
-    sort_slice_by_c_str_key_inner(slice, f, sort_slice_unstable_by_c_str_key_fallback)
+    sort_slice_by_c_str_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes_unstable,
+        sort_slice_unstable_by_c_str_key_fallback,
+    )
 }
 
 /// Sort a slice by a `CStr` key.
@@ -347,13 +363,19 @@ pub fn sort_slice_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     f: F,
 ) {
-    sort_slice_by_c_str_key_inner(slice, f, sort_slice_by_c_str_key_fallback)
+    sort_slice_by_c_str_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes,
+        sort_slice_by_c_str_key_fallback,
+    )
 }
 
 #[cfg(feature = "std")]
 fn sort_slice_by_c_str_key_inner<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
+    ref_index_str_pairs_to_ref_indexes: impl Fn(Vec<(usize, &str)>) -> Vec<(usize, usize)>,
     fallback: impl Fn(&mut [A], F),
 ) {
     let mut use_str = true;
@@ -405,7 +427,12 @@ pub fn sort_slice_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) 
     slice: &mut [A],
     f: F,
 ) {
-    sort_slice_by_path_key_inner(slice, f, sort_slice_unstable_by_path_key_fallback)
+    sort_slice_by_path_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes_unstable,
+        sort_slice_unstable_by_path_key_fallback,
+    )
 }
 
 /// Sort a slice by a `Path` key.
@@ -414,13 +441,19 @@ pub fn sort_slice_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     f: F,
 ) {
-    sort_slice_by_path_key_inner(slice, f, sort_slice_by_path_key_fallback)
+    sort_slice_by_path_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes,
+        sort_slice_by_path_key_fallback,
+    )
 }
 
 #[cfg(feature = "std")]
 fn sort_slice_by_path_key_inner<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
+    ref_index_str_pairs_to_ref_indexes: impl Fn(Vec<(usize, &str)>) -> Vec<(usize, usize)>,
     fallback: impl Fn(&mut [A], F),
 ) {
     let mut use_str = true;
@@ -499,6 +532,26 @@ pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
 }
 
 // TODO -----------
+
+#[cfg(feature = "std")]
+#[inline]
+fn ref_index_str_pairs_to_ref_indexes_unstable(
+    mut ref_index_str_pairs: Vec<(usize, &str)>,
+) -> Vec<(usize, usize)> {
+    ref_index_str_pairs.sort_unstable_by(|a, b| compare_str(a.1, b.1));
+
+    ref_index_str_pairs
+        .into_iter()
+        .enumerate()
+        .filter_map(|(j, (i, _))| {
+            if i != j {
+                Some((i, j))
+            } else {
+                None
+            }
+        })
+        .collect()
+}
 
 #[cfg(feature = "std")]
 #[inline]
