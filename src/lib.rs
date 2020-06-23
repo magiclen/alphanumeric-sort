@@ -189,14 +189,14 @@ pub fn compare_os_str<A: AsRef<OsStr>, B: AsRef<OsStr>>(a: A, b: B) -> Ordering 
     let sa = match a.as_ref().to_str() {
         Some(s) => s,
         None => {
-            return compare_os_str_inner(a, b);
+            return compare_os_str_fallback(a, b);
         }
     };
 
     let sb = match b.as_ref().to_str() {
         Some(s) => s,
         None => {
-            return compare_os_str_inner(a, b);
+            return compare_os_str_fallback(a, b);
         }
     };
 
@@ -205,7 +205,7 @@ pub fn compare_os_str<A: AsRef<OsStr>, B: AsRef<OsStr>>(a: A, b: B) -> Ordering 
 
 #[cfg(feature = "std")]
 #[inline]
-fn compare_os_str_inner<A: AsRef<OsStr>, B: AsRef<OsStr>>(a: A, b: B) -> Ordering {
+fn compare_os_str_fallback<A: AsRef<OsStr>, B: AsRef<OsStr>>(a: A, b: B) -> Ordering {
     a.as_ref().cmp(b.as_ref())
 }
 
@@ -216,14 +216,14 @@ pub fn compare_c_str<A: AsRef<CStr>, B: AsRef<CStr>>(a: A, b: B) -> Ordering {
     let sa = match a.as_ref().to_str() {
         Ok(s) => s,
         Err(_) => {
-            return compare_c_str_inner(a, b);
+            return compare_c_str_fallback(a, b);
         }
     };
 
     let sb = match b.as_ref().to_str() {
         Ok(s) => s,
         Err(_) => {
-            return compare_c_str_inner(a, b);
+            return compare_c_str_fallback(a, b);
         }
     };
 
@@ -232,7 +232,7 @@ pub fn compare_c_str<A: AsRef<CStr>, B: AsRef<CStr>>(a: A, b: B) -> Ordering {
 
 #[cfg(feature = "std")]
 #[inline]
-fn compare_c_str_inner<A: AsRef<CStr>, B: AsRef<CStr>>(a: A, b: B) -> Ordering {
+fn compare_c_str_fallback<A: AsRef<CStr>, B: AsRef<CStr>>(a: A, b: B) -> Ordering {
     a.as_ref().cmp(b.as_ref())
 }
 
@@ -245,6 +245,15 @@ pub fn compare_path<A: AsRef<Path>, B: AsRef<Path>>(a: A, b: B) -> Ordering {
 
 // TODO -----------
 
+/// Sort a slice by a `str` key, but may not preserve the order of equal elements.
+#[inline]
+pub fn sort_slice_unstable_by_str_key<A, T: ?Sized + AsRef<str>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_unstable_by(|a, b| compare_str(f(a), f(b)));
+}
+
 /// Sort a slice by a `str` key.
 #[inline]
 pub fn sort_slice_by_str_key<A, T: ?Sized + AsRef<str>, F: FnMut(&A) -> &T>(
@@ -254,11 +263,31 @@ pub fn sort_slice_by_str_key<A, T: ?Sized + AsRef<str>, F: FnMut(&A) -> &T>(
     slice.sort_by(|a, b| compare_str(f(a), f(b)));
 }
 
+/// Sort a slice by a `OsStr` key, but may not preserve the order of equal elements.
+#[cfg(feature = "std")]
+#[inline]
+pub fn sort_slice_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_os_str_key_inner(slice, f, sort_slice_unstable_by_os_str_key_fallback)
+}
+
 /// Sort a slice by a `OsStr` key.
 #[cfg(feature = "std")]
+#[inline]
 pub fn sort_slice_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_os_str_key_inner(slice, f, sort_slice_by_os_str_key_fallback)
+}
+
+#[cfg(feature = "std")]
+fn sort_slice_by_os_str_key_inner<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
     mut f: F,
+    fallback: impl Fn(&mut [A], F),
 ) {
     let mut use_str = true;
 
@@ -281,25 +310,51 @@ pub fn sort_slice_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>
 
         sort_slice_ref_indexes(slice, ref_indexes);
     } else {
-        // fallback
-        sort_slice_by_os_str_inner(slice, f);
+        fallback(slice, f);
     }
 }
 
 #[cfg(feature = "std")]
 #[inline]
-fn sort_slice_by_os_str_inner<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
+fn sort_slice_unstable_by_os_str_key_fallback<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
 ) {
-    slice.sort_by(|a, b| compare_os_str_inner(f(a), f(b)));
+    slice.sort_unstable_by(|a, b| compare_os_str_fallback(f(a), f(b)));
+}
+
+#[cfg(feature = "std")]
+#[inline]
+fn sort_slice_by_os_str_key_fallback<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_by(|a, b| compare_os_str_fallback(f(a), f(b)));
+}
+
+/// Sort a slice by a `CStr` key, but may not preserve the order of equal elements.
+#[cfg(feature = "std")]
+pub fn sort_slice_unstable_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_c_str_key_inner(slice, f, sort_slice_unstable_by_c_str_key_fallback)
 }
 
 /// Sort a slice by a `CStr` key.
 #[cfg(feature = "std")]
 pub fn sort_slice_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_c_str_key_inner(slice, f, sort_slice_by_c_str_key_fallback)
+}
+
+#[cfg(feature = "std")]
+fn sort_slice_by_c_str_key_inner<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
     mut f: F,
+    fallback: impl Fn(&mut [A], F),
 ) {
     let mut use_str = true;
 
@@ -322,25 +377,51 @@ pub fn sort_slice_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
 
         sort_slice_ref_indexes(slice, ref_indexes);
     } else {
-        // fallback
-        sort_slice_by_c_str_inner(slice, f);
+        fallback(slice, f);
     }
 }
 
 #[cfg(feature = "std")]
 #[inline]
-fn sort_slice_by_c_str_inner<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
+fn sort_slice_unstable_by_c_str_key_fallback<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
 ) {
-    slice.sort_by(|a, b| compare_c_str_inner(f(a), f(b)));
+    slice.sort_unstable_by(|a, b| compare_c_str_fallback(f(a), f(b)));
+}
+
+#[cfg(feature = "std")]
+#[inline]
+fn sort_slice_by_c_str_key_fallback<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_by(|a, b| compare_c_str_fallback(f(a), f(b)));
+}
+
+/// Sort a slice by a `Path` key, but may not preserve the order of equal elements.
+#[cfg(feature = "std")]
+pub fn sort_slice_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_path_key_inner(slice, f, sort_slice_unstable_by_path_key_fallback)
 }
 
 /// Sort a slice by a `Path` key.
 #[cfg(feature = "std")]
 pub fn sort_slice_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_path_key_inner(slice, f, sort_slice_by_path_key_fallback)
+}
+
+#[cfg(feature = "std")]
+fn sort_slice_by_path_key_inner<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
     mut f: F,
+    fallback: impl Fn(&mut [A], F),
 ) {
     let mut use_str = true;
 
@@ -363,19 +444,30 @@ pub fn sort_slice_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
 
         sort_slice_ref_indexes(slice, ref_indexes);
     } else {
-        // fallback
-        sort_slice_by_path_inner(slice, f);
+        fallback(slice, f);
     }
 }
 
 #[cfg(feature = "std")]
 #[inline]
-fn sort_slice_by_path_inner<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
+fn sort_slice_unstable_by_path_key_fallback<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
 ) {
-    slice
-        .sort_by(|a, b| compare_os_str_inner(f(a).as_ref().as_os_str(), f(b).as_ref().as_os_str()));
+    slice.sort_unstable_by(|a, b| {
+        compare_os_str_fallback(f(a).as_ref().as_os_str(), f(b).as_ref().as_os_str())
+    });
+}
+
+#[cfg(feature = "std")]
+#[inline]
+fn sort_slice_by_path_key_fallback<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_by(|a, b| {
+        compare_os_str_fallback(f(a).as_ref().as_os_str(), f(b).as_ref().as_os_str())
+    });
 }
 
 // TODO -----------
@@ -384,26 +476,26 @@ fn sort_slice_by_path_inner<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
 /// Sort a `str` slice.
 #[inline]
 pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {
-    slice.sort_by(|a, b| compare_str(a, b));
+    slice.sort_unstable_by(|a, b| compare_str(a, b));
 }
 
 /// Sort an `OsStr` slice.
 #[cfg(feature = "std")]
 pub fn sort_os_str_slice<S: AsRef<OsStr>>(slice: &mut [S]) {
-    sort_slice_by_os_str_key(slice, |e| e.as_ref())
+    sort_slice_unstable_by_os_str_key(slice, |e| e.as_ref())
 }
 
 /// Sort a `CStr` slice.
 #[cfg(feature = "std")]
 #[inline]
 pub fn sort_c_str_slice<S: AsRef<CStr>>(slice: &mut [S]) {
-    sort_slice_by_c_str_key(slice, |e| e.as_ref())
+    sort_slice_unstable_by_c_str_key(slice, |e| e.as_ref())
 }
 
 /// Sort a `Path` slice.
 #[cfg(feature = "std")]
 pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
-    sort_slice_by_path_key(slice, |e| e.as_ref())
+    sort_slice_unstable_by_path_key(slice, |e| e.as_ref())
 }
 
 // TODO -----------
