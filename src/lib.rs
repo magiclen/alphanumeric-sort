@@ -255,7 +255,7 @@ pub fn sort_slice_by_str_key<A, T: ?Sized + AsRef<str>, F: FnMut(&A) -> &T>(
 }
 
 /// Sort a slice by a `OsStr` key.
-#[inline]
+#[cfg(feature = "std")]
 pub fn sort_slice_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
@@ -296,7 +296,7 @@ fn sort_slice_by_os_str_inner<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
 }
 
 /// Sort a slice by a `CStr` key.
-#[inline]
+#[cfg(feature = "std")]
 pub fn sort_slice_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
@@ -337,7 +337,7 @@ fn sort_slice_by_c_str_inner<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
 }
 
 /// Sort a slice by a `Path` key.
-#[inline]
+#[cfg(feature = "std")]
 pub fn sort_slice_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
