@@ -263,6 +263,24 @@ pub fn sort_slice_by_str_key<A, T: ?Sized + AsRef<str>, F: FnMut(&A) -> &T>(
     slice.sort_by(|a, b| compare_str(f(a), f(b)));
 }
 
+/// Reversely sort a slice by a `str` key, but may not preserve the order of equal elements.
+#[inline]
+pub fn sort_slice_rev_unstable_by_str_key<A, T: ?Sized + AsRef<str>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_unstable_by(|a, b| compare_str(f(b), f(a)));
+}
+
+/// Reversely sort a slice by a `str` key.
+#[inline]
+pub fn sort_slice_rev_by_str_key<A, T: ?Sized + AsRef<str>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_by(|a, b| compare_str(f(b), f(a)));
+}
+
 /// Sort a slice by a `OsStr` key, but may not preserve the order of equal elements.
 #[cfg(feature = "std")]
 #[inline]
@@ -290,6 +308,36 @@ pub fn sort_slice_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>
         f,
         ref_index_str_pairs_to_ref_indexes,
         sort_slice_by_os_str_key_fallback,
+    )
+}
+
+/// Reversely sort a slice by a `OsStr` key, but may not preserve the order of equal elements.
+#[cfg(feature = "std")]
+#[inline]
+pub fn sort_slice_rev_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_os_str_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes_rev_unstable,
+        sort_slice_rev_unstable_by_os_str_key_fallback,
+    )
+}
+
+/// Reversely sort a slice by a `OsStr` key.
+#[cfg(feature = "std")]
+#[inline]
+pub fn sort_slice_rev_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_os_str_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes_rev,
+        sort_slice_rev_by_os_str_key_fallback,
     )
 }
 
@@ -343,6 +391,28 @@ fn sort_slice_by_os_str_key_fallback<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -
     slice.sort_by(|a, b| compare_os_str_fallback(f(a), f(b)));
 }
 
+#[cfg(feature = "std")]
+#[inline]
+fn sort_slice_rev_unstable_by_os_str_key_fallback<
+    A,
+    T: ?Sized + AsRef<OsStr>,
+    F: FnMut(&A) -> &T,
+>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_unstable_by(|a, b| compare_os_str_fallback(f(b), f(a)));
+}
+
+#[cfg(feature = "std")]
+#[inline]
+fn sort_slice_rev_by_os_str_key_fallback<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_by(|a, b| compare_os_str_fallback(f(b), f(a)));
+}
+
 /// Sort a slice by a `CStr` key, but may not preserve the order of equal elements.
 #[cfg(feature = "std")]
 pub fn sort_slice_unstable_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
@@ -368,6 +438,34 @@ pub fn sort_slice_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
         f,
         ref_index_str_pairs_to_ref_indexes,
         sort_slice_by_c_str_key_fallback,
+    )
+}
+
+/// Reversely sort a slice by a `CStr` key, but may not preserve the order of equal elements.
+#[cfg(feature = "std")]
+pub fn sort_slice_rev_unstable_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_c_str_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes_rev_unstable,
+        sort_slice_rev_unstable_by_c_str_key_fallback,
+    )
+}
+
+/// Reversely sort a slice by a `CStr` key.
+#[cfg(feature = "std")]
+pub fn sort_slice_rev_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_c_str_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes_rev,
+        sort_slice_rev_by_c_str_key_fallback,
     )
 }
 
@@ -421,6 +519,24 @@ fn sort_slice_by_c_str_key_fallback<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> 
     slice.sort_by(|a, b| compare_c_str_fallback(f(a), f(b)));
 }
 
+#[cfg(feature = "std")]
+#[inline]
+fn sort_slice_rev_unstable_by_c_str_key_fallback<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_unstable_by(|a, b| compare_c_str_fallback(f(b), f(a)));
+}
+
+#[cfg(feature = "std")]
+#[inline]
+fn sort_slice_rev_by_c_str_key_fallback<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_by(|a, b| compare_c_str_fallback(f(b), f(a)));
+}
+
 /// Sort a slice by a `Path` key, but may not preserve the order of equal elements.
 #[cfg(feature = "std")]
 pub fn sort_slice_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
@@ -446,6 +562,34 @@ pub fn sort_slice_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
         f,
         ref_index_str_pairs_to_ref_indexes,
         sort_slice_by_path_key_fallback,
+    )
+}
+
+/// Reversely sort a slice by a `Path` key, but may not preserve the order of equal elements.
+#[cfg(feature = "std")]
+pub fn sort_slice_rev_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_path_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes_rev_unstable,
+        sort_slice_rev_unstable_by_path_key_fallback,
+    )
+}
+
+/// Reversely sort a slice by a `Path` key.
+#[cfg(feature = "std")]
+pub fn sort_slice_rev_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    f: F,
+) {
+    sort_slice_by_path_key_inner(
+        slice,
+        f,
+        ref_index_str_pairs_to_ref_indexes_rev,
+        sort_slice_rev_by_path_key_fallback,
     )
 }
 
@@ -503,6 +647,28 @@ fn sort_slice_by_path_key_fallback<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &
     });
 }
 
+#[cfg(feature = "std")]
+#[inline]
+fn sort_slice_rev_unstable_by_path_key_fallback<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_unstable_by(|a, b| {
+        compare_os_str_fallback(f(b).as_ref().as_os_str(), f(a).as_ref().as_os_str())
+    });
+}
+
+#[cfg(feature = "std")]
+#[inline]
+fn sort_slice_rev_by_path_key_fallback<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
+    slice: &mut [A],
+    mut f: F,
+) {
+    slice.sort_by(|a, b| {
+        compare_os_str_fallback(f(b).as_ref().as_os_str(), f(a).as_ref().as_os_str())
+    });
+}
+
 // TODO -----------
 
 #[allow(clippy::redundant_closure)]
@@ -510,6 +676,12 @@ fn sort_slice_by_path_key_fallback<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &
 #[inline]
 pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {
     slice.sort_unstable_by(|a, b| compare_str(a, b));
+}
+
+/// Reversely sort a `str` slice.
+#[inline]
+pub fn sort_str_slice_rev<S: AsRef<str>>(slice: &mut [S]) {
+    slice.sort_unstable_by(|a, b| compare_str(b, a));
 }
 
 /// Sort an `OsStr` slice.
@@ -540,17 +712,7 @@ fn ref_index_str_pairs_to_ref_indexes_unstable(
 ) -> Vec<(usize, usize)> {
     ref_index_str_pairs.sort_unstable_by(|a, b| compare_str(a.1, b.1));
 
-    ref_index_str_pairs
-        .into_iter()
-        .enumerate()
-        .filter_map(|(j, (i, _))| {
-            if i != j {
-                Some((i, j))
-            } else {
-                None
-            }
-        })
-        .collect()
+    ref_index_str_pairs_to_ref_indexes_inner(ref_index_str_pairs)
 }
 
 #[cfg(feature = "std")]
@@ -560,6 +722,34 @@ fn ref_index_str_pairs_to_ref_indexes(
 ) -> Vec<(usize, usize)> {
     ref_index_str_pairs.sort_by(|a, b| compare_str(a.1, b.1));
 
+    ref_index_str_pairs_to_ref_indexes_inner(ref_index_str_pairs)
+}
+
+#[cfg(feature = "std")]
+#[inline]
+fn ref_index_str_pairs_to_ref_indexes_rev_unstable(
+    mut ref_index_str_pairs: Vec<(usize, &str)>,
+) -> Vec<(usize, usize)> {
+    ref_index_str_pairs.sort_unstable_by(|a, b| compare_str(b.1, a.1));
+
+    ref_index_str_pairs_to_ref_indexes_inner(ref_index_str_pairs)
+}
+
+#[cfg(feature = "std")]
+#[inline]
+fn ref_index_str_pairs_to_ref_indexes_rev(
+    mut ref_index_str_pairs: Vec<(usize, &str)>,
+) -> Vec<(usize, usize)> {
+    ref_index_str_pairs.sort_by(|a, b| compare_str(b.1, a.1));
+
+    ref_index_str_pairs_to_ref_indexes_inner(ref_index_str_pairs)
+}
+
+#[cfg(feature = "std")]
+#[inline]
+fn ref_index_str_pairs_to_ref_indexes_inner(
+    ref_index_str_pairs: Vec<(usize, &str)>,
+) -> Vec<(usize, usize)> {
     ref_index_str_pairs
         .into_iter()
         .enumerate()
