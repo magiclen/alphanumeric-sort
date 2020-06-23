@@ -281,7 +281,7 @@ pub fn sort_slice_rev_by_str_key<A, T: ?Sized + AsRef<str>, F: FnMut(&A) -> &T>(
     slice.sort_by(|a, b| compare_str(f(b), f(a)));
 }
 
-/// Sort a slice by a `OsStr` key, but may not preserve the order of equal elements.
+/// Sort a slice by an `OsStr` key, but may not preserve the order of equal elements.
 #[cfg(feature = "std")]
 #[inline]
 pub fn sort_slice_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
@@ -296,7 +296,7 @@ pub fn sort_slice_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&
     )
 }
 
-/// Sort a slice by a `OsStr` key.
+/// Sort a slice by an `OsStr` key.
 #[cfg(feature = "std")]
 #[inline]
 pub fn sort_slice_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
@@ -311,7 +311,7 @@ pub fn sort_slice_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>
     )
 }
 
-/// Reversely sort a slice by a `OsStr` key, but may not preserve the order of equal elements.
+/// Reversely sort a slice by an `OsStr` key, but may not preserve the order of equal elements.
 #[cfg(feature = "std")]
 #[inline]
 pub fn sort_slice_rev_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
@@ -326,7 +326,7 @@ pub fn sort_slice_rev_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnM
     )
 }
 
-/// Reversely sort a slice by a `OsStr` key.
+/// Reversely sort a slice by an `OsStr` key.
 #[cfg(feature = "std")]
 #[inline]
 pub fn sort_slice_rev_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
