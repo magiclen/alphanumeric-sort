@@ -10,7 +10,8 @@ categories = ["no-std", "algorithms"]
 description = "This crate can help you sort order for files and folders whose names contain numerals."
 readme = "README.md"
 license = "MIT"
-include = ["src/**/*", "Cargo.toml", "benches/bench.rs", "examples/sort_files_by_file_names.rs"]
+include = ["src/**/*", "Cargo.toml", "benches/bench.rs", "examples/sort_files_by_file_names.rs",
+           "LICENSE", "README.md"]
 
 [badges.travis-ci]
 repository = "magiclen/alphanumeric-sort"
