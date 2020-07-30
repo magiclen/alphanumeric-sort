@@ -61,6 +61,13 @@ assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], pat
 
 But it is not recommended because the `compare_*` functions try to convert data (e.g `Path`, `CStr`) to `&str` every time in its execution and thus they are slower than the `sort_*` functions when sorting a slice.
 
+## Version `1.3` to `1.4`
+
+No breaking change in API is made, though the order has some changes.
+
+* `"0001"` is greater than `"001"` instead of being equal.
+* `"中"` is greater than `"1"` instead of being less. `"第1章"` is still less than `"第1-2章"`, even though `"章"` is greater than `"-"`.
+
 ## No Std
 
 Disable the default features to compile this crate without std.
@@ -95,6 +102,9 @@ use std::path::Path;
 pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
     let mut c1 = a.as_ref().chars();
     let mut c2 = b.as_ref().chars();
+
+    // this flag is to handle something like "1點" < "1-1點"
+    let mut last_is_number = false;
 
     let mut v1: Option<char> = None;
     let mut v2: Option<char> = None;
@@ -136,9 +146,13 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             let mut da = f64::from(ca as u32) - f64::from(b'0');
             let mut db = f64::from(cb as u32) - f64::from(b'0');
 
+            // this counter is to handle something like "001" > "01"
+            let mut dc = 0isize;
+
             while let Some(ca) = c1.next() {
                 if ca >= '0' && ca <= '9' {
                     da = da * 10.0 + (f64::from(ca as u32) - f64::from(b'0'));
+                    dc += 1;
                 } else {
                     v1 = Some(ca);
                     break;
@@ -148,30 +162,39 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             while let Some(cb) = c2.next() {
                 if cb >= '0' && cb <= '9' {
                     db = db * 10.0 + (f64::from(cb as u32) - f64::from(b'0'));
+                    dc -= 1;
                 } else {
                     v2 = Some(cb);
                     break;
                 }
             }
 
+            last_is_number = true;
+
             match da.partial_cmp(&db) {
                 Some(ordering) if ordering != Ordering::Equal => {
                     return ordering;
                 }
-                _ => (),
+                _ => {
+                    match dc.cmp(&0) {
+                        Ordering::Equal => (),
+                        Ordering::Greater => return Ordering::Greater,
+                        Ordering::Less => return Ordering::Less,
+                    }
+                }
             }
         } else {
             match ca.cmp(&cb) {
-                Ordering::Equal => (),
+                Ordering::Equal => last_is_number = false,
                 Ordering::Greater => {
-                    return if (ca > (255 as char)) ^ (cb > (255 as char)) {
+                    return if last_is_number && (ca > (255 as char)) ^ (cb > (255 as char)) {
                         Ordering::Less
                     } else {
                         Ordering::Greater
                     };
                 }
                 Ordering::Less => {
-                    return if (ca > (255 as char)) ^ (cb > (255 as char)) {
+                    return if last_is_number && (ca > (255 as char)) ^ (cb > (255 as char)) {
                         Ordering::Greater
                     } else {
                         Ordering::Less

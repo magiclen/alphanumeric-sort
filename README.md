@@ -59,6 +59,13 @@ assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], pat
 
 But it is not recommended because the `compare_*` functions try to convert data (e.g `Path`, `CStr`) to `&str` every time in its execution and thus they are slower than the `sort_*` functions when sorting a slice.
 
+## Version `1.3` to `1.4`
+
+No breaking change in API is made, though the order has some changes.
+
+* `"0001"` is greater than `"001"` instead of being equal.
+* `"中"` is greater than `"1"` instead of being less. `"第1章"` is still less than `"第1-2章"`, even though `"章"` is greater than `"-"`.
+
 ## No Std
 
 Disable the default features to compile this crate without std.

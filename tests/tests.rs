@@ -147,12 +147,32 @@ fn compare_lv6_2() {
 
 #[test]
 fn compare_lv7_1() {
-    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("中", "1"));
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1", "中"));
 }
 
 #[test]
 fn compare_lv7_2() {
-    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1", "中"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("中", "1"));
+}
+
+#[test]
+fn compare_lv8_1() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1個", "1.1個"));
+}
+
+#[test]
+fn compare_lv8_2() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1.1個", "1個"));
+}
+
+#[test]
+fn compare_lv9_1() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1", "01"));
+}
+
+#[test]
+fn compare_lv9_2() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01", "1"));
 }
 
 #[test]
