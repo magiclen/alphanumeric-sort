@@ -1,6 +1,6 @@
 [package]
 name = "alphanumeric-sort"
-version = "1.4.2"
+version = "1.4.3"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/alphanumeric-sort"
@@ -11,10 +11,6 @@ description = "This crate can help you sort order for files and folders whose na
 readme = "README.md"
 license = "MIT"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE", "benches/bench.rs", "examples/sort_files_by_file_names.rs"]
-
-[badges.github]
-repository = "magiclen/alphanumeric-sort"
-workflow = "CI"
 
 [dependencies]
 
