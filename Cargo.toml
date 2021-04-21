@@ -12,9 +12,9 @@ readme = "README.md"
 license = "MIT"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE", "benches/bench.rs", "examples/sort_files_by_file_names.rs"]
 
-[badges.travis-ci]
+[badges.github]
 repository = "magiclen/alphanumeric-sort"
-branch = "master"
+workflow = "CI"
 
 [dependencies]
 

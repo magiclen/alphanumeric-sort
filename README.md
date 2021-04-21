@@ -1,7 +1,7 @@
 Alphanumeric Sort
 ====================
 
-[![Build Status](https://travis-ci.org/magiclen/alphanumeric-sort.svg?branch=master)](https://travis-ci.org/magiclen/alphanumeric-sort)
+[![CI](https://github.com/magiclen/alphanumeric-sort/actions/workflows/ci.yml/badge.svg)](https://github.com/magiclen/alphanumeric-sort/actions/workflows/ci.yml)
 
 This crate can help you sort order for files and folders whose names contain numerals.
 
