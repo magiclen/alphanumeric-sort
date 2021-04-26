@@ -30,8 +30,10 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           override: true
       - run: cargo build --release
+      - run: cargo build --examples --release
       - run: cargo test --release
       - run: cargo doc --release
       - run: cargo build --no-default-features
+      - run: cargo build --examples --no-default-features
       - run: cargo test --no-default-features
       - run: cargo doc --no-default-features
