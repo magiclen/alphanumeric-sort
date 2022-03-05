@@ -18,8 +18,6 @@ assert_eq!(["shot-1", "shot-11", "shot-2"], names);
 Thus, in this kind of case, an alphanumeric sort might come in handy.
 
 ```rust
-extern crate alphanumeric_sort;
-
 let mut names = ["shot-2", "shot-1", "shot-11"];
 
 alphanumeric_sort::sort_str_slice(&mut names);
@@ -28,8 +26,6 @@ assert_eq!(["shot-1", "shot-2", "shot-11"], names);
 ```
 
 ```rust
-extern crate alphanumeric_sort;
-
 # #[cfg(feature = "std")] {
 use std::path::Path;
 
@@ -46,8 +42,6 @@ assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], pat
 To sort a slice, the code can also be written like,
 
 ```rust
-extern crate alphanumeric_sort;
-
 # #[cfg(feature = "std")] {
 use std::path::Path;
 
@@ -97,7 +91,6 @@ use std::ffi::{CStr, OsStr};
 #[cfg(feature = "std")]
 use std::path::Path;
 
-#[allow(clippy::while_let_on_iterator)]
 /// Compare two strings.
 pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
     let mut c1 = a.as_ref().chars();
@@ -149,7 +142,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             // this counter is to handle something like "001" > "01"
             let mut dc = 0isize;
 
-            while let Some(ca) = c1.next() {
+            for ca in c1.by_ref() {
                 if ('0'..='9').contains(&ca) {
                     da = da * 10.0 + (f64::from(ca as u32) - f64::from(b'0'));
                     dc += 1;
@@ -159,7 +152,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
                 }
             }
 
-            while let Some(cb) = c2.next() {
+            for cb in c2.by_ref() {
                 if ('0'..='9').contains(&cb) {
                     db = db * 10.0 + (f64::from(cb as u32) - f64::from(b'0'));
                     dc -= 1;
@@ -702,7 +695,6 @@ fn sort_slice_rev_by_path_key_fallback<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) 
 
 // TODO -----------
 
-#[allow(clippy::redundant_closure)]
 /// Sort a `str` slice.
 #[inline]
 pub fn sort_str_slice<S: AsRef<str>>(slice: &mut [S]) {

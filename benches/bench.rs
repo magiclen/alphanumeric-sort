@@ -1,11 +1,6 @@
-extern crate alphanumeric_sort;
-
-#[macro_use]
-extern crate bencher;
-
 use std::path::Path;
 
-use bencher::Bencher;
+use bencher::{benchmark_group, benchmark_main, Bencher};
 
 #[derive(Debug)]
 struct P(&'static Path);

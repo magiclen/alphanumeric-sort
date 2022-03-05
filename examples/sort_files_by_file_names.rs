@@ -1,5 +1,3 @@
-extern crate alphanumeric_sort;
-
 use std::path::{Path, PathBuf};
 
 const FILES_PATH: &str = "examples/files";

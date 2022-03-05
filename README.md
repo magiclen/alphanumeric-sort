@@ -20,8 +20,6 @@ assert_eq!(["shot-1", "shot-11", "shot-2"], names);
 Thus, in this kind of case, an alphanumeric sort might come in handy.
 
 ```rust
-extern crate alphanumeric_sort;
-
 let mut names = ["shot-2", "shot-1", "shot-11"];
 
 alphanumeric_sort::sort_str_slice(&mut names);
@@ -30,8 +28,6 @@ assert_eq!(["shot-1", "shot-2", "shot-11"], names);
 ```
 
 ```rust
-extern crate alphanumeric_sort;
-
 use std::path::Path;
 
 let mut paths = [Path::new("shot-2"), Path::new("shot-1"), Path::new("shot-11")];
@@ -46,8 +42,6 @@ assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], pat
 To sort a slice, the code can also be written like,
 
 ```rust
-extern crate alphanumeric_sort;
-
 use std::path::Path;
 
 let mut paths = [Path::new("shot-2"), Path::new("shot-1"), Path::new("shot-11")];
