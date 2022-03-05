@@ -1,5 +1,3 @@
-extern crate alphanumeric_sort;
-
 use std::cmp::Ordering;
 
 #[cfg(feature = "std")]
