@@ -85,6 +85,8 @@ extern crate alloc;
 
 use core::cmp::Ordering;
 
+use alloc::{vec, string::String};
+
 #[cfg(feature = "std")]
 use std::ffi::{CStr, OsStr};
 
