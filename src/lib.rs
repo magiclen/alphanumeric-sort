@@ -85,7 +85,7 @@ extern crate alloc;
 
 use core::cmp::Ordering;
 
-use alloc::{vec, string::String};
+use alloc::vec;
 
 #[cfg(feature = "std")]
 use std::ffi::{CStr, OsStr};
@@ -177,11 +177,11 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
                     }
                 }
                 _ => {
-                    let str_a = da.into_iter().collect::<String>();
-                    let str_b = db.into_iter().collect::<String>();
-                    if let Some(ordering) = str_a.partial_cmp(&str_b) {
-                        if ordering != Ordering::Equal {
-                            return ordering;
+                    for i in 0..da.len() {
+                        if let Some(ordering) = da[i].partial_cmp(&db[i]) {
+                            if ordering != Ordering::Equal {
+                                return ordering;
+                            }
                         }
                     }
                 }
