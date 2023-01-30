@@ -136,16 +136,17 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
         };
 
         if ('0'..='9').contains(&ca) && ('0'..='9').contains(&cb) {
-            let mut da = f64::from(ca as u32) - f64::from(b'0');
-            let mut db = f64::from(cb as u32) - f64::from(b'0');
-
-            // this counter is to handle something like "001" > "01"
-            let mut dc = 0isize;
+            let mut da = vec![ca];
+            let mut num_zero_da = if ca == '0' { 1 } else { 0 };
+            let mut db = vec![cb];
+            let mut num_zero_db = if cb == '0' { 1 } else { 0 };
 
             for ca in c1.by_ref() {
-                if ('0'..='9').contains(&ca) {
-                    da = da * 10.0 + (f64::from(ca as u32) - f64::from(b'0'));
-                    dc += 1;
+                if ca >= '0' && ca <= '9' {
+                    if num_zero_da == da.len() && ca == '0' {
+                        num_zero_da += 1;
+                    }
+                    da.push(ca);
                 } else {
                     v1 = Some(ca);
                     break;
@@ -153,9 +154,11 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             }
 
             for cb in c2.by_ref() {
-                if ('0'..='9').contains(&cb) {
-                    db = db * 10.0 + (f64::from(cb as u32) - f64::from(b'0'));
-                    dc -= 1;
+                if cb >= '0' && cb <= '9' {
+                    if num_zero_db == db.len() && cb == '0' {
+                        num_zero_db += 1;
+                    }
+                    db.push(cb);
                 } else {
                     v2 = Some(cb);
                     break;
@@ -164,15 +167,20 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
 
             last_is_number = true;
 
-            match da.partial_cmp(&db) {
+            match da.len().partial_cmp(&db.len()) {
                 Some(ordering) if ordering != Ordering::Equal => {
-                    return ordering;
+                    return match (da.len() - num_zero_da).partial_cmp(&(db.len() - num_zero_db)) {
+                        Some(inner_ordering) if inner_ordering != Ordering::Equal => inner_ordering,
+                        _ => ordering,
+                    }
                 }
                 _ => {
-                    match dc.cmp(&0) {
-                        Ordering::Equal => (),
-                        Ordering::Greater => return Ordering::Greater,
-                        Ordering::Less => return Ordering::Less,
+                    let str_a = da.into_iter().collect::<String>();
+                    let str_b = db.into_iter().collect::<String>();
+                    if let Some(ordering) = str_a.partial_cmp(&str_b) {
+                        if ordering != Ordering::Equal {
+                            return ordering;
+                        }
                     }
                 }
             }

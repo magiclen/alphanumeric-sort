@@ -136,11 +136,20 @@ fn compare_lv5_3() {
 #[test]
 fn compare_lv6_1() {
     assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1", "1a"));
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1", "11"));
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1", "01"));
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("0", "00"));
 }
 
 #[test]
 fn compare_lv6_2() {
     assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1a", "1"));
+}
+
+#[test]
+fn compare_lv6_3() {
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01", "00"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1", "0000"));
 }
 
 #[test]
@@ -171,6 +180,25 @@ fn compare_lv9_1() {
 #[test]
 fn compare_lv9_2() {
     assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01", "1"));
+}
+
+#[test]
+fn compare_big_numbers_1() {
+    assert_eq!(
+        alphanumeric_sort::compare_str(
+            "234784353456723654872364354374658736457364",
+            "234784353456723654872364354374658736457365",
+        ),
+        Ordering::Less
+    );
+}
+
+#[test]
+fn compare_big_numbers_2() {
+    assert_eq!(alphanumeric_sort::compare_str(
+        "23478435345672365487236435437465873645736452658734658734653645872542736437465365487326548734658736457265345736458733",
+        "23478435345672365487236435437465873645736452658734658734653645872542736437465365487326548734658736457265345736458730",
+    ), Ordering::Greater);
 }
 
 #[test]
