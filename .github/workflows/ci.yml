@@ -41,6 +41,9 @@ jobs:
         toolchain:
           - stable
           - nightly
+        features:
+          -
+          - --no-default-features
     name: Test ${{ matrix.toolchain }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -50,11 +53,5 @@ jobs:
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
-      - run: cargo build
-      - run: cargo build --examples
-      - run: cargo test
-      - run: cargo doc
-      - run: cargo build --no-default-features
-      - run: cargo build --examples --no-default-features
-      - run: cargo test --no-default-features
-      - run: cargo doc --no-default-features
+      - run: cargo test ${{ matrix.features }}
+      - run: cargo doc ${{ matrix.features }}
