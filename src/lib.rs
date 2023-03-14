@@ -135,7 +135,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             }
         };
 
-        if ('0'..='9').contains(&ca) && ('0'..='9').contains(&cb) {
+        if ca.is_ascii_digit() && cb.is_ascii_digit() {
             let mut da = f64::from(ca as u32) - f64::from(b'0');
             let mut db = f64::from(cb as u32) - f64::from(b'0');
 
@@ -143,7 +143,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             let mut dc = 0isize;
 
             for ca in c1.by_ref() {
-                if ('0'..='9').contains(&ca) {
+                if ca.is_ascii_digit() {
                     da = da * 10.0 + (f64::from(ca as u32) - f64::from(b'0'));
                     dc += 1;
                 } else {
@@ -153,7 +153,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             }
 
             for cb in c2.by_ref() {
-                if ('0'..='9').contains(&cb) {
+                if cb.is_ascii_digit() {
                     db = db * 10.0 + (f64::from(cb as u32) - f64::from(b'0'));
                     dc -= 1;
                 } else {
