@@ -77,13 +77,15 @@ default-features = false
 ```bash
 cargo bench
 ```
-*/
+ */
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
 extern crate alloc;
+extern crate core;
 
 use core::cmp::Ordering;
+use core::str::Chars;
 
 #[cfg(feature = "std")]
 use std::ffi::{CStr, OsStr};
@@ -103,7 +105,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
     let mut v2: Option<char> = None;
 
     loop {
-        let ca = {
+        let mut ca = {
             match v1.take() {
                 Some(c) => c,
                 None => {
@@ -121,7 +123,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             }
         };
 
-        let cb = {
+        let mut cb = {
             match v2.take() {
                 Some(c) => c,
                 None => {
@@ -136,45 +138,135 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
         };
 
         if ca.is_ascii_digit() && cb.is_ascii_digit() {
-            let mut da = f64::from(ca as u32) - f64::from(b'0');
-            let mut db = f64::from(cb as u32) - f64::from(b'0');
+            // count the digit length, but ignore the leading zeros and the following same part (prefix)
+            let mut la = 1usize;
+            let mut lb = 1usize;
 
             // this counter is to handle something like "001" > "01"
-            let mut dc = 0isize;
+            let mut lc = 0isize;
 
-            for ca in c1.by_ref() {
-                if ca.is_ascii_digit() {
-                    da = da * 10.0 + (f64::from(ca as u32) - f64::from(b'0'));
-                    dc += 1;
+            // find the first non-zero digit in c1
+            while ca == '0' {
+                lc += 1;
+                if let Some(c) = c1.next() {
+                    if c.is_ascii_digit() {
+                        ca = c;
+                    } else {
+                        v1 = Some(c);
+                        la = 0;
+                        break;
+                    }
                 } else {
-                    v1 = Some(ca);
+                    la = 0;
                     break;
                 }
             }
 
-            for cb in c2.by_ref() {
-                if cb.is_ascii_digit() {
-                    db = db * 10.0 + (f64::from(cb as u32) - f64::from(b'0'));
-                    dc -= 1;
+            // find the first non-zero digit in c2
+            while cb == '0' {
+                lc -= 1;
+                if let Some(c) = c2.next() {
+                    if c.is_ascii_digit() {
+                        cb = c;
+                    } else {
+                        v2 = Some(cb);
+                        lb = 0;
+                        break;
+                    }
                 } else {
-                    v2 = Some(cb);
+                    lb = 0;
                     break;
                 }
             }
 
-            last_is_number = true;
+            // consume the remaining ascii digit
+            let consume_ascii_digit = |chars: &mut Chars, store: &mut Option<char>| {
+                let mut counter = 0;
 
-            match da.partial_cmp(&db) {
-                Some(ordering) if ordering != Ordering::Equal => {
-                    return ordering;
-                }
-                _ => {
-                    match dc.cmp(&0) {
-                        Ordering::Equal => (),
-                        Ordering::Greater => return Ordering::Greater,
-                        Ordering::Less => return Ordering::Less,
+                for c in chars.by_ref() {
+                    if c.is_ascii_digit() {
+                        counter += 1;
+                    } else {
+                        *store = Some(c);
+                        break;
                     }
                 }
+
+                counter
+            };
+
+            let mut ordering = Ordering::Equal;
+
+            if la == 0 {
+                if lb == 0 {
+                    // e.g. 000 vs 000, 000 vs 0000, 0000 vs 000
+                } else {
+                    // e.g. 0000 vs 001
+
+                    return Ordering::Less;
+                }
+            } else if lb == 0 {
+                // e.g. 001 vs 0000
+
+                return Ordering::Greater;
+            } else {
+                // e.g. 1 vs 12, 001 vs 0012
+
+                // skip the same prefix and compare the next ascii digit
+                loop {
+                    ordering = ca.cmp(&cb);
+
+                    if ordering == Ordering::Equal {
+                        if let Some(c) = c1.next() {
+                            if c.is_ascii_digit() {
+                                if let Some(cc) = c2.next() {
+                                    if cc.is_ascii_digit() {
+                                        ca = c;
+                                        cb = cc;
+                                    } else {
+                                        return Ordering::Greater;
+                                    }
+                                } else {
+                                    return Ordering::Greater;
+                                }
+                            } else {
+                                let n = consume_ascii_digit(&mut c2, &mut v2);
+                                v1 = Some(c);
+
+                                if n > 0 {
+                                    return Ordering::Less;
+                                }
+
+                                break;
+                            }
+                        } else if c2.next().is_some() {
+                            return Ordering::Less;
+                        } else {
+                            break;
+                        }
+                    } else {
+                        la += consume_ascii_digit(&mut c1, &mut v1);
+                        lb += consume_ascii_digit(&mut c2, &mut v2);
+
+                        if la != lb {
+                            ordering = la.cmp(&lb);
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            if ordering == Ordering::Equal {
+                match lc.cmp(&0) {
+                    Ordering::Equal => {
+                        last_is_number = true;
+                    }
+                    Ordering::Greater => return Ordering::Greater,
+                    Ordering::Less => return Ordering::Less,
+                }
+            } else {
+                return ordering;
             }
         } else {
             match ca.cmp(&cb) {
