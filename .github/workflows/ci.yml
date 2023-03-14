@@ -44,7 +44,7 @@ jobs:
         features:
           -
           - --no-default-features
-    name: Test ${{ matrix.toolchain }} on ${{ matrix.os }}
+    name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} (${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
