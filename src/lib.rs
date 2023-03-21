@@ -169,7 +169,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
                     if c.is_ascii_digit() {
                         cb = c;
                     } else {
-                        v2 = Some(cb);
+                        v2 = Some(c);
                         lb = 0;
                         break;
                     }

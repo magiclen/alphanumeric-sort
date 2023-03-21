@@ -62,6 +62,18 @@ fn compare_lv3_1() {
 }
 
 #[test]
+fn compare_lv3_2() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("a1b1", "a1b2"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("a1b2", "a1b1"));
+}
+
+#[test]
+fn compare_lv3_3() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("a0b1", "a0b2"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("a0b2", "a0b1"));
+}
+
+#[test]
 fn compare_lv4_1() {
     assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("abc1", "abc321"));
     assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("abc321", "abc1"));
