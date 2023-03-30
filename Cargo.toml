@@ -8,7 +8,6 @@ homepage = "https://magiclen.org/alphanumeric-sort"
 keywords = ["sort", "alphanumeric", "path", "file", "number"]
 categories = ["no-std", "algorithms"]
 description = "This crate can help you sort order for files and folders whose names contain numerals."
-readme = "README.md"
 license = "MIT"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE", "benches/bench.rs", "examples/sort_files_by_file_names.rs"]
 

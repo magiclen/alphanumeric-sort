@@ -84,12 +84,9 @@ cargo bench
 extern crate alloc;
 extern crate core;
 
-use core::cmp::Ordering;
-use core::str::Chars;
-
+use core::{cmp::Ordering, str::Chars};
 #[cfg(feature = "std")]
 use std::ffi::{CStr, OsStr};
-
 #[cfg(feature = "std")]
 use std::path::Path;
 
@@ -108,32 +105,28 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
         let mut ca = {
             match v1.take() {
                 Some(c) => c,
-                None => {
-                    match c1.next() {
-                        Some(c) => c,
-                        None => {
-                            if v2.take().is_some() || c2.next().is_some() {
-                                return Ordering::Less;
-                            } else {
-                                return Ordering::Equal;
-                            }
+                None => match c1.next() {
+                    Some(c) => c,
+                    None => {
+                        if v2.take().is_some() || c2.next().is_some() {
+                            return Ordering::Less;
+                        } else {
+                            return Ordering::Equal;
                         }
-                    }
-                }
+                    },
+                },
             }
         };
 
         let mut cb = {
             match v2.take() {
                 Some(c) => c,
-                None => {
-                    match c2.next() {
-                        Some(c) => c,
-                        None => {
-                            return Ordering::Greater;
-                        }
-                    }
-                }
+                None => match c2.next() {
+                    Some(c) => c,
+                    None => {
+                        return Ordering::Greater;
+                    },
+                },
             }
         };
 
@@ -261,7 +254,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
                 match lc.cmp(&0) {
                     Ordering::Equal => {
                         last_is_number = true;
-                    }
+                    },
                     Ordering::Greater => return Ordering::Greater,
                     Ordering::Less => return Ordering::Less,
                 }
@@ -277,14 +270,14 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
                     } else {
                         Ordering::Greater
                     };
-                }
+                },
                 Ordering::Less => {
                     return if last_is_number && (ca > (255 as char)) ^ (cb > (255 as char)) {
                         Ordering::Greater
                     } else {
                         Ordering::Less
                     };
-                }
+                },
             }
         }
     }
@@ -298,14 +291,14 @@ pub fn compare_os_str<A: AsRef<OsStr>, B: AsRef<OsStr>>(a: A, b: B) -> Ordering 
         Some(s) => s,
         None => {
             return compare_os_str_fallback(a, b);
-        }
+        },
     };
 
     let sb = match b.as_ref().to_str() {
         Some(s) => s,
         None => {
             return compare_os_str_fallback(a, b);
-        }
+        },
     };
 
     compare_str(sa, sb)
@@ -325,14 +318,14 @@ pub fn compare_c_str<A: AsRef<CStr>, B: AsRef<CStr>>(a: A, b: B) -> Ordering {
         Ok(s) => s,
         Err(_) => {
             return compare_c_str_fallback(a, b);
-        }
+        },
     };
 
     let sb = match b.as_ref().to_str() {
         Ok(s) => s,
         Err(_) => {
             return compare_c_str_fallback(a, b);
-        }
+        },
     };
 
     compare_str(sa, sb)
@@ -466,7 +459,7 @@ fn sort_slice_by_os_str_key_inner<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &
             None => {
                 use_str = false;
                 break;
-            }
+            },
         };
 
         ref_index_str_pairs.push((i, s));
@@ -598,7 +591,7 @@ fn sort_slice_by_c_str_key_inner<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>
             Err(_) => {
                 use_str = false;
                 break;
-            }
+            },
         };
 
         ref_index_str_pairs.push((i, s));
@@ -726,7 +719,7 @@ fn sort_slice_by_path_key_inner<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
             None => {
                 use_str = false;
                 break;
-            }
+            },
         };
 
         ref_index_str_pairs.push((i, s));
@@ -891,13 +884,7 @@ fn ref_index_str_pairs_to_ref_indexes_inner(
     ref_index_str_pairs
         .into_iter()
         .enumerate()
-        .filter_map(|(j, (i, _))| {
-            if i != j {
-                Some((i, j))
-            } else {
-                None
-            }
-        })
+        .filter_map(|(j, (i, _))| if i != j { Some((i, j)) } else { None })
         .collect()
 }
 

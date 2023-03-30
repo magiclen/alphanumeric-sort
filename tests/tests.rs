@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-
 #[cfg(feature = "std")]
 use std::path::Path;
 
