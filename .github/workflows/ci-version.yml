@@ -18,6 +18,7 @@ jobs:
           - macos-latest
           - windows-latest
         toolchain:
+          - 1.56.1
           - stable
           - nightly
         features:
