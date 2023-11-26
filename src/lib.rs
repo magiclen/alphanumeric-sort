@@ -82,6 +82,8 @@ cargo bench
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
+extern crate alloc; // used for sorting
+
 #[cfg(feature = "std")]
 mod std_functions;
 
