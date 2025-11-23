@@ -305,7 +305,6 @@ fn sort_slice_rev_by_c_str_key_fallback<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A)
 }
 
 /// Sort a slice by a `Path` key, but may not preserve the order of equal elements.
-
 #[inline]
 pub fn sort_slice_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -320,7 +319,6 @@ pub fn sort_slice_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) 
 }
 
 /// Sort a slice by a `Path` key.
-
 #[inline]
 pub fn sort_slice_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -335,7 +333,6 @@ pub fn sort_slice_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
 }
 
 /// Reversely sort a slice by a `Path` key, but may not preserve the order of equal elements.
-
 #[inline]
 pub fn sort_slice_rev_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -350,7 +347,6 @@ pub fn sort_slice_rev_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(
 }
 
 /// Reversely sort a slice by a `Path` key.
-
 #[inline]
 pub fn sort_slice_rev_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
