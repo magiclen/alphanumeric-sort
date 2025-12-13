@@ -137,12 +137,13 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             let mut la = 1usize;
             let mut lb = 1usize;
 
-            // this counter is to handle something like "001" > "01"
-            let mut lc = 0isize;
+            // these counters are to handle something like "001" > "01" (la0 = 2, lb0 = 1) and "1" > "01" (la0 = 0, lb0 = 1)
+            let mut la0 = 0usize;
+            let mut lb0 = 0usize;
 
             // find the first non-zero digit in c1
             while ca == '0' {
-                lc += 1;
+                la0 += 1;
                 if let Some(c) = c1.next() {
                     if c.is_ascii_digit() {
                         ca = c;
@@ -159,7 +160,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
 
             // find the first non-zero digit in c2
             while cb == '0' {
-                lc -= 1;
+                lb0 += 1;
                 if let Some(c) = c2.next() {
                     if c.is_ascii_digit() {
                         cb = c;
@@ -253,12 +254,24 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             }
 
             if ordering == Ordering::Equal {
-                match lc.cmp(&0) {
+                match la0.cmp(&lb0) {
                     Ordering::Equal => {
                         last_is_number = true;
                     },
-                    Ordering::Greater => return Ordering::Greater,
-                    Ordering::Less => return Ordering::Less,
+                    Ordering::Greater => {
+                        if lb0 == 0 {
+                            return Ordering::Less;
+                        } else {
+                            return Ordering::Greater;
+                        }
+                    },
+                    Ordering::Less => {
+                        if la0 == 0 {
+                            return Ordering::Greater;
+                        } else {
+                            return Ordering::Less;
+                        }
+                    },
                 }
             } else {
                 return ordering;

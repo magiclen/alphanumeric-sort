@@ -127,14 +127,14 @@ fn compare_lv8_1() {
 
 #[test]
 fn compare_lv9_1() {
-    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1", "01"));
-    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01", "1"));
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01", "1"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1", "01"));
 }
 
 #[test]
 fn compare_lv9_2() {
-    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1章", "01章"));
-    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01章", "1章"));
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01章", "1章"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1章", "01章"));
 }
 
 #[test]
@@ -147,6 +147,18 @@ fn compare_lv9_3() {
 fn compare_lv9_4() {
     assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1章", "10章"));
     assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("10章", "1章"));
+}
+
+#[test]
+fn compare_lv9_5() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01", "1a"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1a", "01"));
+}
+
+#[test]
+fn compare_lv9_6() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01章", "1a章"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1a章", "01章"));
 }
 
 #[test]
