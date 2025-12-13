@@ -150,6 +150,18 @@ fn compare_lv9_4() {
 }
 
 #[test]
+fn compare_lv9_5() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01", "1a"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1a", "01"));
+}
+
+#[test]
+fn compare_lv9_6() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1a章", "01章"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01章", "1a章"));
+}
+
+#[test]
 fn compare_lv10_1() {
     assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("00001", "000001"));
     assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("000001", "00001"));
@@ -166,6 +178,36 @@ fn compare_lv11_1() {
         "23478435345672365487236435437465873645736452658734658734653645872542736437465365487326548734658736457265345736458736",
         "23478435345672365487236435437465873645736452658734658734653645872542736437465365487326548734658736457265345736458735",
     ), Ordering::Greater);
+}
+
+#[test]
+fn compare_lv12_1() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01a01b01", "01a01b02"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01a01b02", "01a01b01"));
+}
+
+#[test]
+fn compare_lv12_2() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01a01b01", "01a01b001"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01a01b001", "01a01b01"));
+}
+
+#[test]
+fn compare_lv12_3() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01a01b01", "01a001b01"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01a001b02", "01a01b01"));
+}
+
+#[test]
+fn compare_lv12_4() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01a01b01", "001a01b01"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01a01b02", "001a01b01"));
+}
+
+#[test]
+fn compare_lv12_5() {
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01a001b01", "001a01b01"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01a001b02", "001a01b01"));
 }
 
 #[test]
