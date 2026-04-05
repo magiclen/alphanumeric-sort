@@ -101,7 +101,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
     let mut last_is_number = false;
 
     // this flag is to handle something like "1a" > "01"
-    let mut pre_anwser = Ordering::Equal;
+    let mut pre_answer = Ordering::Equal;
 
     let mut v1: Option<char> = None;
     let mut v2: Option<char> = None;
@@ -116,7 +116,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
                         if v2.take().is_some() || c2.next().is_some() {
                             return Ordering::Less;
                         } else {
-                            return pre_anwser;
+                            return pre_answer;
                         }
                     },
                 },
@@ -261,15 +261,15 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
                         last_is_number = true;
                     },
                     Ordering::Greater => {
-                        if pre_anwser == Ordering::Equal {
-                            pre_anwser = Ordering::Greater;
+                        if pre_answer == Ordering::Equal {
+                            pre_answer = Ordering::Greater;
                         } else {
                             // ignore
                         }
                     },
                     Ordering::Less => {
-                        if pre_anwser == Ordering::Equal {
-                            pre_anwser = Ordering::Less;
+                        if pre_answer == Ordering::Equal {
+                            pre_answer = Ordering::Less;
                         } else {
                             // ignore
                         }
