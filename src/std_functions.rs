@@ -121,7 +121,7 @@ pub fn sort_slice_rev_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) ->
 fn sort_slice_by_os_str_key_inner<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
-    ref_index_str_pairs_to_ref_indexes: impl Fn(Vec<(usize, &str)>) -> Vec<(usize, usize)>,
+    ref_index_str_pairs_to_ref_indexes: impl Fn(Vec<(usize, &str)>) -> Vec<usize>,
     fallback: impl Fn(&mut [A], F),
 ) {
     let mut use_str = true;
@@ -244,7 +244,7 @@ pub fn sort_slice_rev_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &
 fn sort_slice_by_c_str_key_inner<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
-    ref_index_str_pairs_to_ref_indexes: impl Fn(Vec<(usize, &str)>) -> Vec<(usize, usize)>,
+    ref_index_str_pairs_to_ref_indexes: impl Fn(Vec<(usize, &str)>) -> Vec<usize>,
     fallback: impl Fn(&mut [A], F),
 ) {
     let mut use_str = true;
@@ -363,7 +363,7 @@ pub fn sort_slice_rev_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T
 fn sort_slice_by_path_key_inner<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
     mut f: F,
-    ref_index_str_pairs_to_ref_indexes: impl Fn(Vec<(usize, &str)>) -> Vec<(usize, usize)>,
+    ref_index_str_pairs_to_ref_indexes: impl Fn(Vec<(usize, &str)>) -> Vec<usize>,
     fallback: impl Fn(&mut [A], F),
 ) {
     let mut use_str = true;
@@ -474,16 +474,14 @@ pub fn sort_path_slice_rev<P: AsRef<Path>>(slice: &mut [P]) {
 #[inline]
 fn ref_index_str_pairs_to_ref_indexes_unstable(
     mut ref_index_str_pairs: Vec<(usize, &str)>,
-) -> Vec<(usize, usize)> {
+) -> Vec<usize> {
     ref_index_str_pairs.sort_unstable_by(|a, b| compare_str(a.1, b.1));
 
     ref_index_str_pairs_to_ref_indexes_inner(ref_index_str_pairs)
 }
 
 #[inline]
-fn ref_index_str_pairs_to_ref_indexes(
-    mut ref_index_str_pairs: Vec<(usize, &str)>,
-) -> Vec<(usize, usize)> {
+fn ref_index_str_pairs_to_ref_indexes(mut ref_index_str_pairs: Vec<(usize, &str)>) -> Vec<usize> {
     ref_index_str_pairs.sort_by(|a, b| compare_str(a.1, b.1));
 
     ref_index_str_pairs_to_ref_indexes_inner(ref_index_str_pairs)
@@ -492,7 +490,7 @@ fn ref_index_str_pairs_to_ref_indexes(
 #[inline]
 fn ref_index_str_pairs_to_ref_indexes_rev_unstable(
     mut ref_index_str_pairs: Vec<(usize, &str)>,
-) -> Vec<(usize, usize)> {
+) -> Vec<usize> {
     ref_index_str_pairs.sort_unstable_by(|a, b| compare_str(b.1, a.1));
 
     ref_index_str_pairs_to_ref_indexes_inner(ref_index_str_pairs)
@@ -501,37 +499,32 @@ fn ref_index_str_pairs_to_ref_indexes_rev_unstable(
 #[inline]
 fn ref_index_str_pairs_to_ref_indexes_rev(
     mut ref_index_str_pairs: Vec<(usize, &str)>,
-) -> Vec<(usize, usize)> {
+) -> Vec<usize> {
     ref_index_str_pairs.sort_by(|a, b| compare_str(b.1, a.1));
 
     ref_index_str_pairs_to_ref_indexes_inner(ref_index_str_pairs)
 }
 
 #[inline]
-fn ref_index_str_pairs_to_ref_indexes_inner(
-    ref_index_str_pairs: Vec<(usize, &str)>,
-) -> Vec<(usize, usize)> {
-    ref_index_str_pairs
-        .into_iter()
-        .enumerate()
-        .filter_map(|(j, (i, _))| if i != j { Some((i, j)) } else { None })
-        .collect()
+fn ref_index_str_pairs_to_ref_indexes_inner(ref_index_str_pairs: Vec<(usize, &str)>) -> Vec<usize> {
+    ref_index_str_pairs.into_iter().map(|(i, _)| i).collect()
 }
 
 #[inline]
-fn sort_slice_ref_indexes<S>(slice: &mut [S], mut ref_indexes: Vec<(usize, usize)>) {
-    let length = ref_indexes.len();
+fn sort_slice_ref_indexes<S>(slice: &mut [S], mut permutation: Vec<usize>) {
+    // Cycle Decomposition
+    for i in 0..permutation.len() {
+        let mut current = i;
 
-    for index in 0..length {
-        let (i, j) = ref_indexes[index];
+        while permutation[current] != i {
+            let next = permutation[current];
 
-        slice.swap(i, j);
+            slice.swap(current, next);
 
-        for (t, _) in ref_indexes[index + 1..].iter_mut() {
-            if *t == j {
-                *t = i;
-                break;
-            }
+            permutation[current] = current;
+            current = next;
         }
+
+        permutation[current] = current;
     }
 }
