@@ -37,6 +37,12 @@ assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], pat
 # }
 ```
 
+## Sorting Rules
+
+ASCII digit sequences are compared by their numeric values instead of their lexicographical order. When two digit sequences have the same numeric value, leading zeros are used as a tie-breaker, so `"0001"` is greater than `"001"`.
+
+This crate is not a locale-aware collation library. Non-numeric characters are compared by their Unicode scalar values, except after equal digit sequences: if the next different characters are on different sides of U+00FF, their ordering is reversed. This keeps cases like `"第1章"` less than `"第1-2章"`, while `"1"` is still less than `"中"`.
+
 ## About the `compare_*` Functions and the `sort_*` Functions
 
 To sort a slice, the code can also be written like,
@@ -300,7 +306,7 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
     }
 }
 
-// TODO -----------
+// String-key sorting
 
 /// Sort a slice by a `str` key, but may not preserve the order of equal elements.
 #[inline]
@@ -338,7 +344,7 @@ pub fn sort_slice_rev_by_str_key<A, T: ?Sized + AsRef<str>, F: FnMut(&A) -> &T>(
     slice.sort_by(|a, b| compare_str(f(b), f(a)));
 }
 
-// TODO -----------
+// Direct string slice sorting
 
 /// Sort a `str` slice.
 #[inline]

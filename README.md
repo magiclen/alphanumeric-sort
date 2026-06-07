@@ -37,6 +37,12 @@ alphanumeric_sort::sort_path_slice(&mut paths);
 assert_eq!([Path::new("shot-1"), Path::new("shot-2"), Path::new("shot-11")], paths);
 ```
 
+## Sorting Rules
+
+ASCII digit sequences are compared by their numeric values instead of their lexicographical order. When two digit sequences have the same numeric value, leading zeros are used as a tie-breaker, so `"0001"` is greater than `"001"`.
+
+This crate is not a locale-aware collation library. Non-numeric characters are compared by their Unicode scalar values, except after equal digit sequences: if the next different characters are on different sides of U+00FF, their ordering is reversed. This keeps cases like `"第1章"` less than `"第1-2章"`, while `"1"` is still less than `"中"`.
+
 ## About the `compare_*` Functions and the `sort_*` Functions
 
 To sort a slice, the code can also be written like,

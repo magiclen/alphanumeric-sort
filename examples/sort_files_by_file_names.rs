@@ -1,7 +1,10 @@
+#[cfg(feature = "std")]
 use std::path::{Path, PathBuf};
 
+#[cfg(feature = "std")]
 const FILES_PATH: &str = "examples/files";
 
+#[cfg(feature = "std")]
 fn main() {
     let files = Path::new(FILES_PATH);
 
@@ -13,9 +16,10 @@ fn main() {
 
     println!("Native Sort: {:#?}", sub_files);
 
-    sub_files.sort();
-
     alphanumeric_sort::sort_path_slice(&mut sub_files);
 
     println!("Alphanumeric Sort: {:#?}", sub_files);
 }
+
+#[cfg(not(feature = "std"))]
+fn main() {}

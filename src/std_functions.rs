@@ -7,6 +7,10 @@ use std::{
 use crate::compare_str;
 
 /// Compare two `OsStr`.
+///
+/// The alphanumeric algorithm is used only when both values can be converted to UTF-8
+/// with `OsStr::to_str`. If either value cannot be converted, this falls back to the
+/// native `OsStr` ordering.
 #[inline]
 pub fn compare_os_str<A: AsRef<OsStr>, B: AsRef<OsStr>>(a: A, b: B) -> Ordering {
     let sa = match a.as_ref().to_str() {
@@ -32,6 +36,10 @@ fn compare_os_str_fallback<A: AsRef<OsStr>, B: AsRef<OsStr>>(a: A, b: B) -> Orde
 }
 
 /// Compare two `CStr`.
+///
+/// The alphanumeric algorithm is used only when both values can be converted to UTF-8
+/// with `CStr::to_str`. If either value cannot be converted, this falls back to the
+/// native `CStr` ordering.
 #[inline]
 pub fn compare_c_str<A: AsRef<CStr>, B: AsRef<CStr>>(a: A, b: B) -> Ordering {
     let sa = match a.as_ref().to_str() {
@@ -57,12 +65,20 @@ fn compare_c_str_fallback<A: AsRef<CStr>, B: AsRef<CStr>>(a: A, b: B) -> Orderin
 }
 
 /// Compare two `Path`.
+///
+/// The alphanumeric algorithm is used only when both paths can be converted to UTF-8
+/// through their `OsStr` representations. If either path cannot be converted, this
+/// falls back to the native `OsStr` ordering.
 #[inline]
 pub fn compare_path<A: AsRef<Path>, B: AsRef<Path>>(a: A, b: B) -> Ordering {
     compare_os_str(a.as_ref(), b.as_ref())
 }
 
 /// Sort a slice by an `OsStr` key, but may not preserve the order of equal elements.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8.
+/// If any key cannot be converted, the whole slice is sorted by native `OsStr` key
+/// ordering.
 #[inline]
 pub fn sort_slice_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -77,6 +93,10 @@ pub fn sort_slice_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&
 }
 
 /// Sort a slice by an `OsStr` key.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8.
+/// If any key cannot be converted, the whole slice is sorted by native `OsStr` key
+/// ordering.
 #[inline]
 pub fn sort_slice_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -91,6 +111,10 @@ pub fn sort_slice_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>
 }
 
 /// Reversely sort a slice by an `OsStr` key, but may not preserve the order of equal elements.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8.
+/// If any key cannot be converted, the whole slice is sorted by native `OsStr` key
+/// ordering.
 #[inline]
 pub fn sort_slice_rev_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -105,6 +129,10 @@ pub fn sort_slice_rev_unstable_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnM
 }
 
 /// Reversely sort a slice by an `OsStr` key.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8.
+/// If any key cannot be converted, the whole slice is sorted by native `OsStr` key
+/// ordering.
 #[inline]
 pub fn sort_slice_rev_by_os_str_key<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -186,6 +214,10 @@ fn sort_slice_rev_by_os_str_key_fallback<A, T: ?Sized + AsRef<OsStr>, F: FnMut(&
 }
 
 /// Sort a slice by a `CStr` key, but may not preserve the order of equal elements.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8.
+/// If any key cannot be converted, the whole slice is sorted by native `CStr` key
+/// ordering.
 #[inline]
 pub fn sort_slice_unstable_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -200,6 +232,10 @@ pub fn sort_slice_unstable_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A)
 }
 
 /// Sort a slice by a `CStr` key.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8.
+/// If any key cannot be converted, the whole slice is sorted by native `CStr` key
+/// ordering.
 #[inline]
 pub fn sort_slice_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -214,6 +250,10 @@ pub fn sort_slice_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
 }
 
 /// Reversely sort a slice by a `CStr` key, but may not preserve the order of equal elements.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8.
+/// If any key cannot be converted, the whole slice is sorted by native `CStr` key
+/// ordering.
 #[inline]
 pub fn sort_slice_rev_unstable_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -228,6 +268,10 @@ pub fn sort_slice_rev_unstable_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut
 }
 
 /// Reversely sort a slice by a `CStr` key.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8.
+/// If any key cannot be converted, the whole slice is sorted by native `CStr` key
+/// ordering.
 #[inline]
 pub fn sort_slice_rev_by_c_str_key<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -305,6 +349,10 @@ fn sort_slice_rev_by_c_str_key_fallback<A, T: ?Sized + AsRef<CStr>, F: FnMut(&A)
 }
 
 /// Sort a slice by a `Path` key, but may not preserve the order of equal elements.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8
+/// through its `OsStr` representation. If any key cannot be converted, the whole
+/// slice is sorted by native `OsStr` key ordering.
 #[inline]
 pub fn sort_slice_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -319,6 +367,10 @@ pub fn sort_slice_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) 
 }
 
 /// Sort a slice by a `Path` key.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8
+/// through its `OsStr` representation. If any key cannot be converted, the whole
+/// slice is sorted by native `OsStr` key ordering.
 #[inline]
 pub fn sort_slice_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -333,6 +385,10 @@ pub fn sort_slice_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
 }
 
 /// Reversely sort a slice by a `Path` key, but may not preserve the order of equal elements.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8
+/// through its `OsStr` representation. If any key cannot be converted, the whole
+/// slice is sorted by native `OsStr` key ordering.
 #[inline]
 pub fn sort_slice_rev_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -347,6 +403,10 @@ pub fn sort_slice_rev_unstable_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(
 }
 
 /// Reversely sort a slice by a `Path` key.
+///
+/// The alphanumeric algorithm is used only if every key can be converted to UTF-8
+/// through its `OsStr` representation. If any key cannot be converted, the whole
+/// slice is sorted by native `OsStr` key ordering.
 #[inline]
 pub fn sort_slice_rev_by_path_key<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) -> &T>(
     slice: &mut [A],
@@ -431,45 +491,69 @@ fn sort_slice_rev_by_path_key_fallback<A, T: ?Sized + AsRef<Path>, F: FnMut(&A) 
     });
 }
 
-// TODO -----------
+// Direct std slice sorting
 
 /// Sort an `OsStr` slice.
+///
+/// The alphanumeric algorithm is used only if every item can be converted to UTF-8.
+/// If any item cannot be converted, the whole slice is sorted by native `OsStr`
+/// ordering.
 #[inline]
 pub fn sort_os_str_slice<S: AsRef<OsStr>>(slice: &mut [S]) {
     sort_slice_unstable_by_os_str_key(slice, |e| e.as_ref())
 }
 
 /// Reversely sort an `OsStr` slice.
+///
+/// The alphanumeric algorithm is used only if every item can be converted to UTF-8.
+/// If any item cannot be converted, the whole slice is sorted by native `OsStr`
+/// ordering.
 #[inline]
 pub fn sort_os_str_slice_rev<S: AsRef<OsStr>>(slice: &mut [S]) {
     sort_slice_rev_unstable_by_os_str_key(slice, |e| e.as_ref())
 }
 
 /// Sort a `CStr` slice.
+///
+/// The alphanumeric algorithm is used only if every item can be converted to UTF-8.
+/// If any item cannot be converted, the whole slice is sorted by native `CStr`
+/// ordering.
 #[inline]
 pub fn sort_c_str_slice<S: AsRef<CStr>>(slice: &mut [S]) {
     sort_slice_unstable_by_c_str_key(slice, |e| e.as_ref())
 }
 
 /// Reversely sort a `CStr` slice.
+///
+/// The alphanumeric algorithm is used only if every item can be converted to UTF-8.
+/// If any item cannot be converted, the whole slice is sorted by native `CStr`
+/// ordering.
 #[inline]
 pub fn sort_c_str_slice_rev<S: AsRef<CStr>>(slice: &mut [S]) {
     sort_slice_rev_unstable_by_c_str_key(slice, |e| e.as_ref())
 }
 
 /// Sort a `Path` slice.
+///
+/// The alphanumeric algorithm is used only if every item can be converted to UTF-8
+/// through its `OsStr` representation. If any item cannot be converted, the whole
+/// slice is sorted by native `OsStr` ordering.
 #[inline]
 pub fn sort_path_slice<P: AsRef<Path>>(slice: &mut [P]) {
     sort_slice_unstable_by_path_key(slice, |e| e.as_ref())
 }
 
 /// Reversely sort a `Path` slice.
+///
+/// The alphanumeric algorithm is used only if every item can be converted to UTF-8
+/// through its `OsStr` representation. If any item cannot be converted, the whole
+/// slice is sorted by native `OsStr` ordering.
 #[inline]
 pub fn sort_path_slice_rev<P: AsRef<Path>>(slice: &mut [P]) {
     sort_slice_rev_unstable_by_path_key(slice, |e| e.as_ref())
 }
 
-// TODO -----------
+// Permutation helpers
 
 #[inline]
 fn ref_index_str_pairs_to_ref_indexes_unstable(
