@@ -262,10 +262,10 @@ pub fn compare_str<A: AsRef<str>, B: AsRef<str>>(a: A, b: B) -> Ordering {
             }
 
             if ordering == Ordering::Equal {
+                last_is_number = true;
+
                 match lc.cmp(&0) {
-                    Ordering::Equal => {
-                        last_is_number = true;
-                    },
+                    Ordering::Equal => {},
                     Ordering::Greater => {
                         if pre_answer == Ordering::Equal {
                             pre_answer = Ordering::Greater;

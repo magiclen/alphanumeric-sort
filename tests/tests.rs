@@ -157,8 +157,58 @@ fn compare_lv9_5() {
 
 #[test]
 fn compare_lv9_6() {
-    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("1a章", "01章"));
-    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("01章", "1a章"));
+    assert_eq!(Ordering::Less, alphanumeric_sort::compare_str("01章", "1a章"));
+    assert_eq!(Ordering::Greater, alphanumeric_sort::compare_str("1a章", "01章"));
+}
+
+#[test]
+fn compare_lv9_7() {
+    let a = "1-";
+    let b = "01-";
+    let c = "1：";
+
+    // c < a < b
+
+    let ab = alphanumeric_sort::compare_str(a, b);
+    let bc = alphanumeric_sort::compare_str(b, c);
+    let ac = alphanumeric_sort::compare_str(a, c);
+
+    assert_eq!(Ordering::Less, ab);
+    assert_eq!(Ordering::Greater, bc);
+    assert_eq!(Ordering::Greater, ac);
+
+    let ba = alphanumeric_sort::compare_str(b, a);
+    let cb = alphanumeric_sort::compare_str(c, b);
+    let ca = alphanumeric_sort::compare_str(c, a);
+
+    assert_eq!(Ordering::Greater, ba);
+    assert_eq!(Ordering::Less, cb);
+    assert_eq!(Ordering::Less, ca);
+}
+
+#[test]
+fn compare_lv9_8() {
+    let a = "00章";
+    let b = "0：";
+    let c = "0a";
+
+    // a < b < c
+
+    let ab = alphanumeric_sort::compare_str(a, b);
+    let bc = alphanumeric_sort::compare_str(b, c);
+    let ac = alphanumeric_sort::compare_str(a, c);
+
+    assert_eq!(Ordering::Less, ab);
+    assert_eq!(Ordering::Less, bc);
+    assert_eq!(Ordering::Less, ac);
+
+    let ba = alphanumeric_sort::compare_str(b, a);
+    let cb = alphanumeric_sort::compare_str(c, b);
+    let ca = alphanumeric_sort::compare_str(c, a);
+
+    assert_eq!(Ordering::Greater, ba);
+    assert_eq!(Ordering::Greater, cb);
+    assert_eq!(Ordering::Greater, ca);
 }
 
 #[test]
